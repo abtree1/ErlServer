@@ -1,0 +1,17 @@
+.deploy_strategy
+*.swp
+*.beam
+*.dump
+ebin/*
+rel/pusher*
+log/*
+*@nohost
+.DS_Store
+.eunit
+.idea
+mnesia_backup.log
+.*.cookie
+.*.database
+.*.server_env
+.*.sname
+*.server.config

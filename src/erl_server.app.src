@@ -1,0 +1,12 @@
+{application, erl_server,
+ [
+  {description, "a erlang game server,just for learning!"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { erl_server_app, []}},
+  {env, []}
+ ]}.

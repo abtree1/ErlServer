@@ -1,0 +1,9 @@
+{application,erl_config,
+             [{description,[]},
+              {vsn,"1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {mod,{erl_config_app,[]}},
+              {env,[]},
+              {modules,[erl_config,erl_config_app,erl_config_file,
+                        erl_config_store,erl_config_sup]}]}.

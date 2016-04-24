@@ -17,6 +17,7 @@
 
 -record(state, {}).
 -include("../../include/config.hrl").
+-include("../../include/config_data.hrl").
 
 -define(SERVER, ?MODULE).
 
@@ -39,11 +40,18 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call({find, TableName, Key}, _From, State) ->
-    Ret = case erl_config_store:lookup(TableName) of 
-        false -> false;
-        List ->
+    %% for ets branch
+    %% Ret = case erl_config_store:lookup(TableName) of 
+    Ret = case lists:keyfind(TableName, 1, ?MAP) of 
+        false ->
+            error_logger:info_msg("lists:keyfind(TableName, 1, ?MAP) ~p~n", [?MAP]), 
+            false;
+        {TableName, List} ->
+            error_logger:info_msg("handle_call:List ~p~n", [List]),
             case lists:keyfind(Key, 1, List) of
-                false -> false;
+                false ->
+                    error_logger:info_msg("lists:keyfind(Key, 1, List) ~p~n", [List]),
+                    false;
                 Tuple ->
                     List1 = tuple_to_list(Tuple),
                     list_to_tuple([TableName|List1])
@@ -54,8 +62,9 @@ handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
 handle_cast(init, State) ->
-    erl_config_store:init(),
-    error_logger:info_msg("init file"),
+    %% for ets branch
+    %% erl_config_store:init(),
+    %% error_logger:info_msg("init file"),
     erl_config_file:decompress(),
     {noreply, State};
 handle_cast(_Request, State) ->

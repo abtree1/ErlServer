@@ -1,9 +1,9 @@
 本文件记录整个项目创建过程
-rebar 可通过github获取
-1 通过rebar创建项目
+   rebar 可通过github获取
+1. 通过rebar创建项目
 	./rebar create-app appid=erl_server
 
-2 编写makefile来启动项目
+2. 编写makefile来启动项目
 
 3. 为了方便日志记录
    尝试使用sasl，但sasl需要控制台命令rb才能处理日志，极为不方便

@@ -43,15 +43,10 @@ handle_call({find, TableName, Key}, _From, State) ->
     %% for ets branch
     %% Ret = case erl_config_store:lookup(TableName) of 
     Ret = case lists:keyfind(TableName, 1, ?MAP) of 
-        false ->
-            error_logger:info_msg("lists:keyfind(TableName, 1, ?MAP) ~p~n", [?MAP]), 
-            false;
+        false -> false;
         {TableName, List} ->
-            error_logger:info_msg("handle_call:List ~p~n", [List]),
             case lists:keyfind(Key, 1, List) of
-                false ->
-                    error_logger:info_msg("lists:keyfind(Key, 1, List) ~p~n", [List]),
-                    false;
+                false -> false;
                 Tuple ->
                     List1 = tuple_to_list(Tuple),
                     list_to_tuple([TableName|List1])

@@ -13,7 +13,7 @@
          terminate/2,
          code_change/3]).
 
--export([init/0, find/2]).
+-export([find/2]).
 
 -record(state, {}).
 -include("../../include/config.hrl").
@@ -27,8 +27,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-init()->
-    gen_server:cast(?SERVER, init).
+% init()->
+%     gen_server:cast(?SERVER, init).
 
 find(TableName, Key) ->
     gen_server:call(?SERVER, {find, TableName, Key}).
@@ -43,10 +43,14 @@ handle_call({find, TableName, Key}, _From, State) ->
     %% for ets branch
     %% Ret = case erl_config_store:lookup(TableName) of 
     Ret = case lists:keyfind(TableName, 1, ?MAP) of 
-        false -> false;
+        false -> 
+            error_logger:info_msg("lists:keyfind(TableName, 1, ?MAP) ~p, ~p~n", [TableName, ?MAP]),
+            false;
         {TableName, List} ->
             case lists:keyfind(Key, 1, List) of
-                false -> false;
+                false ->
+                    error_logger:info_msg("lists:keyfind(Key, 1, List) ~p, ~p~n", [Key, List]),
+                    false;
                 Tuple ->
                     List1 = tuple_to_list(Tuple),
                     list_to_tuple([TableName|List1])
@@ -56,12 +60,12 @@ handle_call({find, TableName, Key}, _From, State) ->
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast(init, State) ->
-    %% for ets branch
-    %% erl_config_store:init(),
-    %% error_logger:info_msg("init file"),
-    erl_config_file:decompress(),
-    {noreply, State};
+% handle_cast(init, State) ->
+%     %% for ets branch
+%     %% erl_config_store:init(),
+%     %% error_logger:info_msg("init file"),
+%     erl_config_file:decompress(),
+%     {noreply, State};
 handle_cast(_Request, State) ->
     {noreply, State}.
 

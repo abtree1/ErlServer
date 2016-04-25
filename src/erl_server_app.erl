@@ -10,8 +10,10 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-	lager:start(),
-	ensure_started(erl_config),
+    %% 先生成配置文件
+    lager:start(),
+    %% erl_config_file:decompress(),
+    ensure_started(erl_config),
     R = erl_server_sup:start_link(),
     life_cycle:after_start(),
     R.

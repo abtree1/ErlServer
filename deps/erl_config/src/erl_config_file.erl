@@ -1,8 +1,6 @@
 -module(erl_config_file).
 
--define(CONFIG_DIR, "config").
--define(INCLUDE_DIR, "include/config.hrl").
--define(INCLUDE_DATA_DIR, "include/config_data.hrl").
+-include("../../include/properties.hrl").
 
 -export([decompress/0]).
 
@@ -23,7 +21,8 @@ decompress()->
 	end, {[], []}),
 	% error_logger:info_msg("decompress: ~p~n", [Accout]),
 	write_include_hrl(TAccOut),
-	write_data_hrl(CAccOut).
+	write_data_hrl(CAccOut),
+	init:stop().
 
 fead_conf_file(Name, Path) ->
 	case file:read_file(Path) of 
@@ -96,9 +95,9 @@ analyse_conf_data([Data|Datas], [Type|Types], Result) ->
 
 write_include_hrl(Records) -> 
 	% error_logger:info_msg("write_include_hrl: ~p~n", [Records]),
-	file:write_file(?INCLUDE_DIR, Records).
+	file:write_file(?CONFIG_INCLUDE_DIR, Records).
 
 write_data_hrl(Datas) ->
 	Confs = binary_string:join(Datas, <<",">>),
 	File = << <<"-define(MAP, [">>/binary, Confs/binary, <<"]).">>/binary >>,
-	file:write_file(?INCLUDE_DATA_DIR, File).
+	file:write_file(?CONFIG_INCLUDE_DATA_DIR, File).

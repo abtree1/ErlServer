@@ -2,5 +2,4 @@
 
 -export([after_start/0]).
 
-after_start() ->
-	erl_config:init().
+after_start() -> ok.

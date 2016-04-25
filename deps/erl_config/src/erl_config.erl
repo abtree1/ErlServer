@@ -13,11 +13,13 @@
          terminate/2,
          code_change/3]).
 
--export([find/2]).
+-export([find/2,
+        has_dirty_word/1]).
 
 -record(state, {}).
 -include("../../include/config.hrl").
 -include("../../include/config_data.hrl").
+-include("../../include/dirtywords.hrl").
 
 -define(SERVER, ?MODULE).
 
@@ -33,6 +35,13 @@ start_link() ->
 find(TableName, Key) ->
     gen_server:call(?SERVER, {find, TableName, Key}).
 
+has_dirty_word(Str) ->
+    NewStr = case is_binary(Str) of 
+        true -> binary_to_list(Str);
+        false -> Str
+    end,
+    gen_server:call(?SERVER, {dirty_words_filter, NewStr}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -42,20 +51,19 @@ init([]) ->
 handle_call({find, TableName, Key}, _From, State) ->
     %% for ets branch
     %% Ret = case erl_config_store:lookup(TableName) of 
-    Ret = case lists:keyfind(TableName, 1, ?MAP) of 
-        false -> 
-            error_logger:info_msg("lists:keyfind(TableName, 1, ?MAP) ~p, ~p~n", [TableName, ?MAP]),
-            false;
+    Ret = case lists:keyfind(TableName, 1, ?CONFIGMAP) of 
+        false -> false;
         {TableName, List} ->
             case lists:keyfind(Key, 1, List) of
-                false ->
-                    error_logger:info_msg("lists:keyfind(Key, 1, List) ~p, ~p~n", [Key, List]),
-                    false;
+                false -> false;
                 Tuple ->
                     List1 = tuple_to_list(Tuple),
                     list_to_tuple([TableName|List1])
             end
     end,
+    {reply, Ret, State};
+handle_call({dirty_words_filter, Str}, _From, State) ->
+    Ret = match_dirtywords(Str, ?DIRTYWORDS),
     {reply, Ret, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -77,3 +85,23 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%%%===================================================================
+%%% private function
+%%%===================================================================
+match_dirtywords([], _List) -> false;
+match_dirtywords(Datas, List) ->
+    case match_dirtywords_pre(Datas, List) of 
+        fail -> 
+            [_|L] = Datas,
+            match_dirtywords(L, List);
+        ok -> true
+    end.
+
+match_dirtywords_pre(_, stop) -> ok;
+match_dirtywords_pre([], _) -> fail;
+match_dirtywords_pre([Data|Datas], List) ->
+    case lists:keyfind(<<Data>>,1,List) of 
+        false -> fail;
+        {_, L} -> match_dirtywords_pre(Datas, L)
+    end.

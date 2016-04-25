@@ -21,8 +21,7 @@ decompress()->
 	end, {[], []}),
 	% error_logger:info_msg("decompress: ~p~n", [Accout]),
 	write_include_hrl(TAccOut),
-	write_data_hrl(CAccOut),
-	init:stop().
+	write_data_hrl(CAccOut).
 
 fead_conf_file(Name, Path) ->
 	case file:read_file(Path) of 
@@ -99,5 +98,5 @@ write_include_hrl(Records) ->
 
 write_data_hrl(Datas) ->
 	Confs = binary_string:join(Datas, <<",">>),
-	File = << <<"-define(MAP, [">>/binary, Confs/binary, <<"]).">>/binary >>,
+	File = << <<"-define(CONFIGMAP, [">>/binary, Confs/binary, <<"]).">>/binary >>,
 	file:write_file(?CONFIG_INCLUDE_DATA_DIR, File).

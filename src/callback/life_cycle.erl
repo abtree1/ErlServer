@@ -1,5 +1,10 @@
 -module(life_cycle).
 
--export([after_start/0]).
+-export([config/0, after_start/0]).
+
+config() ->
+	erl_config_file:decompress(),
+	erl_config_dirtywords:decompress(),
+	init:stop().
 
 after_start() -> ok.

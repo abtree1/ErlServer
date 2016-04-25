@@ -33,4 +33,4 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
 
 5.重新生成的hrl文件需要重新编译，这里通过修改makefile，增加start选项，使server在运行之前先编译config
 
-6.dirty words 为了加快其遍历速度，将其作为特殊配置文件处理，采用字典树。
+6.dirty words 为了加快其遍历速度，将其作为特殊配置文件处理，采用字典树。其配置文件dirtywords.filter，换行符可以是"\r\n" 或 "\n"

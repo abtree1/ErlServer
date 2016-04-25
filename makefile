@@ -1,4 +1,4 @@
-.PHONY: all config start console
+.PHONY: all config start console clean
 
 all:
 	./rebar get-deps
@@ -17,7 +17,7 @@ start: config
 config: 
 	erl -pa ebin deps/*/ebin\
 		-config erl_server.config \
-		-s erl_config_file decompress
+		-s life_cycle config
 	./rebar compile
 
 clean:

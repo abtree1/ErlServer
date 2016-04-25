@@ -1,4 +1,4 @@
-本文件记录整个项目创建过程
+ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafei198/game_server）的GameServer，本文件记录整个项目创建过程
    rebar 可通过github获取
 1. 通过rebar创建项目
 	./rebar create-app appid=erl_server

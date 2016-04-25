@@ -1,4 +1,4 @@
-ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafei198/game_server）的GameServer，本文件记录整个项目创建过程
+ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafei198/game_server.git）的GameServer，本文件记录整个项目创建过程
    rebar 可通过github获取
 1. 通过rebar创建项目
 	./rebar create-app appid=erl_server
@@ -32,3 +32,5 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
         另外，第一列标示符，＃号，表示该列有效，不带表示该列无效，title中的flag可有可无或是其它占位符，但其后的TAB(\t)不可省略。
 
 5.重新生成的hrl文件需要重新编译，这里通过修改makefile，增加start选项，使server在运行之前先编译config
+
+6.dirty words 为了加快其遍历速度，将其作为特殊配置文件处理，采用字典树。

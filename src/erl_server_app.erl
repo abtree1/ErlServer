@@ -12,8 +12,8 @@
 start(_StartType, _StartArgs) ->
     %% 先生成配置文件
     lager:start(),
-    %% erl_config_file:decompress(),
     ensure_started(erl_config),
+    ensure_started(erl_counter),
     R = erl_server_sup:start_link(),
     life_cycle:after_start(),
     R.

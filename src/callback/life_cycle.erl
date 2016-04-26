@@ -7,4 +7,5 @@ config() ->
 	erl_config_dirtywords:decompress(),
 	init:stop().
 
-after_start() -> ok.
+after_start() -> 
+	erl_counter:start().

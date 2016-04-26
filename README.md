@@ -30,4 +30,5 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
 
 6.dirty words 为了加快其遍历速度，将其作为特殊配置文件处理，采用字典树。其配置文件dirtywords.filter，换行符可以是"\r\n" 或 "\n"
 
-7.erl_counter 用于记录游戏运行时数据，同时处理延时任务，主要用于mnesia的封装
+7.erl_counter 用于记录游戏运行时数据，同时处理延时任务，运行时数据用mnesia存储，timertask延时任务，有两种解决方案，其一为绑定在各个线程上，让各个线程自己处理自己的延时任务，这样异步性较好，但每个线程都需要处理自己的handle info消息，其二为用一个统一的线程来处理所有的timertask任务。
+

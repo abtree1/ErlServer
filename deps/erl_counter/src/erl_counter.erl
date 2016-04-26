@@ -27,8 +27,7 @@
 	get_incr/1,
 	incr/1,
 	incr/2,
-	del_incr/1,
-	daily_clear/0]).
+	del_incr/1]).
 
 -record(state, {}).
 
@@ -85,9 +84,6 @@ incr(Name, Amount) ->
 del_incr(Name) ->
 	gen_server:cast(?SERVER, {del_incr, Name}).
 
-daily_clear() ->
-	gen_server:cast(?SERVER, daily_clear).
-
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -111,6 +107,8 @@ handle_call(_Request, _From, State) ->
 
 handle_cast(init, State) ->
 	erl_counter_mnesia:start(),
+	Time = time_utils:end_of_today(),
+	erl_timer_task:add_self(Time, erlcounter_dailyclear, clear),
     {noreply, State};
 handle_cast({incr_daily_action, Name, Count}, State) ->
 	erl_counter_mnesia:incr_daily_counter(Name, Count),
@@ -136,13 +134,15 @@ handle_cast({incr, Name, Amount}, State) ->
 handle_cast({del_incr, Name}, State) ->
 	erl_counter_mnesia:del_incr(Name),
     {noreply, State};
-handle_cast(daily_clear, State) ->
-	erl_counter_mnesia:clean_daily_counters(),
-	erl_counter_mnesia:clear_timeout_counter(),
-    {noreply, State};
 handle_cast(_Request, State) ->
     {noreply, State}.
 
+handle_info(clear, State) ->
+	erl_counter_mnesia:clean_daily_counters(),
+	erl_counter_mnesia:clear_timeout_counter(),
+	Time = time_utils:end_of_today(),
+	erl_timer_task:add_self(Time, erlcounter_dailyclear, clear),
+    {noreply, State};
 handle_info(_Info, State) ->
     {noreply, State}.
 

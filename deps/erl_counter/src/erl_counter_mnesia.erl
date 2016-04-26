@@ -24,7 +24,6 @@
 start() -> 
 	mnesia:create_schema([node()]),
     mnesia:start(),
-	error_logger:info_msg("erl_counter_mnesia:start:begin"),
 	mnesia:create_table(mapper, [{disc_copies, [node()]},
                                  {type, set},
                                  {attributes, record_info(fields, mapper)}]),
@@ -36,7 +35,6 @@ start() ->
                                         {attributes, record_info(fields, timeout_counter)}]),
     create_table_daily_counter(),
     mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000),
-    error_logger:info_msg("erl_counter_mnesia:start:end"),
     mnesia:dirty_read(mapper, {test,1}).
 
 get(Name) ->

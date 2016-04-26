@@ -1,0 +1,12 @@
+{application, erl_counter,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { erl_counter_app, []}},
+  {env, []}
+ ]}.

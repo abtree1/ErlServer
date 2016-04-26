@@ -1,0 +1,9 @@
+{application,erl_counter,
+             [{description,[]},
+              {vsn,"1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {mod,{erl_counter_app,[]}},
+              {env,[]},
+              {modules,[erl_counter,erl_counter_app,erl_counter_mnesia,
+                        erl_counter_sup]}]}.

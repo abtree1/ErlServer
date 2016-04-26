@@ -1,0 +1,5 @@
+-define(CONFIG_DIR, "config").
+-define(CONFIG_INCLUDE_DIR, "include/config.hrl").
+-define(CONFIG_INCLUDE_DATA_DIR, "include/config_data.hrl").
+-define(CONFIG_DIRTY_WORDS, "config/dirtywords.filter").
+-define(CONFIG_INCLUDE_DIRTY_WORDS, "include/dirtywords.hrl").

@@ -107,7 +107,7 @@ handle_call(_Request, _From, State) ->
 
 handle_cast(init, State) ->
 	erl_counter_mnesia:start(),
-	Time = time_utils:end_of_today(),
+	Time = time_utils:remain_seconds_to_tomorrow(),
 	erl_timer_task:add_self(Time, erlcounter_dailyclear, clear),
     {noreply, State};
 handle_cast({incr_daily_action, Name, Count}, State) ->
@@ -140,7 +140,7 @@ handle_cast(_Request, State) ->
 handle_info(clear, State) ->
 	erl_counter_mnesia:clean_daily_counters(),
 	erl_counter_mnesia:clear_timeout_counter(),
-	Time = time_utils:end_of_today(),
+	Time = time_utils:remain_seconds_to_tomorrow(),
 	erl_timer_task:add_self(Time, erlcounter_dailyclear, clear),
     {noreply, State};
 handle_info(_Info, State) ->

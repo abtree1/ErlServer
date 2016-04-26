@@ -22,6 +22,9 @@
 		clear_timeout_counter/0]).
 
 start() -> 
+	mnesia:create_schema([node()]),
+    mnesia:start(),
+	error_logger:info_msg("erl_counter_mnesia:start:begin"),
 	mnesia:create_table(mapper, [{disc_copies, [node()]},
                                  {type, set},
                                  {attributes, record_info(fields, mapper)}]),
@@ -32,7 +35,9 @@ start() ->
                                         {type, set},
                                         {attributes, record_info(fields, timeout_counter)}]),
     create_table_daily_counter(),
-    mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000).
+    mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000),
+    error_logger:info_msg("erl_counter_mnesia:start:end"),
+    mnesia:dirty_read(mapper, {test,1}).
 
 get(Name) ->
 	case mnesia:dirty_read(mapper, Name) of 
@@ -96,11 +101,14 @@ clean_daily_counters() ->
 
 clear_timeout_counter() ->
 	Now = time_utils:now(),
-	MatchHead = #timeout_counter{name='$1', timeout='$2', _='_'},
-	Guard = {'=<', '$2', Now},
-	Result = '$1',
-	Olds = mnesia:select(timeout_counter, [{MatchHead, [Guard], [Result]}]),
-	error_logger:info_msg("clear_timeout_counter:~p~n", [Olds]),
-	lists:foreach(fun(Name) ->
-		del_timeout(Name)
-	end, Olds).
+	mnesia:transaction(fun()->
+		MatchHead = #timeout_counter{name='$1', timeout='$2', _='_'},
+		Guard = {'=<', '$2', Now},
+		Result = '$1',
+		Olds = mnesia:select(timeout_counter, [{MatchHead, [Guard], [Result]}]),
+		%% error_logger:info_msg("clear_timeout_counter:~p~n", [Olds]),
+		lists:foreach(fun(Name) ->
+			del_timeout(Name)
+		end, Olds)
+	end).
+	

@@ -137,6 +137,7 @@ handle_cast({del_incr, Name}, State) ->
 	erl_counter_mnesia:del_incr(Name),
     {noreply, State};
 handle_cast(daily_clear, State) ->
+	erl_counter_mnesia:clean_daily_counters(),
 	erl_counter_mnesia:clear_timeout_counter(),
     {noreply, State};
 handle_cast(_Request, State) ->

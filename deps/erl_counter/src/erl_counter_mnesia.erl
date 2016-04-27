@@ -39,7 +39,7 @@ start() ->
     %% daily counter, auto clean
     create_table_daily_counter(),
     mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000),
-    mnesia:dirty_read(mapper, {test,1}).
+    restart_timertask().
 
 get(Name) ->
 	case mnesia:dirty_read(mapper, Name) of 
@@ -117,4 +117,25 @@ clear_timeout_counter() ->
 			del_timeout(Name)
 		end, Olds)
 	end).
-	
+
+restart_timertask() ->
+	Now = time_utils:now(),
+	{_, AccOut} = mnesia:transaction(fun()->
+		mnesia:foldl(fun(Record, AccIn) ->
+			case Record#timeout_counter.name of
+				{timertask_desk, Key} when Record#timeout_counter.timeout > Now ->
+					del_timeout({timertask_desk, Key}),
+					[{Key, Record#timeout_counter.value}|AccIn];
+				{timertask_desk, Key} -> 
+					del_timeout({timertask_desk, Key}),
+					AccIn;
+				{timertask, Key} -> 
+					del_timeout({timertask, Key}),
+					AccIn;
+				_ -> AccIn
+			end
+		end, [], timeout_counter)
+	end),
+	lists:foreach(fun({Key, {Time, _Ref, M, F, A}}) ->
+		erl_timer_task:add(Time - Now, Key, M, F, A)
+	end, AccOut).

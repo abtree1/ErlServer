@@ -12,7 +12,7 @@
 
 
 % %%//////////////////////////////////////////////////
-% %% timertask 任务挂在自己线程，需要自己线程handle info接收，性能更好，但必须回掉after_timer_task_self
+% %% timertask 任务挂在自己线程，需要自己线程handle info接收，性能更好, 但停服后不可恢复
 % %%//////////////////////////////////////////////////
 add_self(Time, Key, Msg) ->
 	TimeRef = erlang:send_after(Time * 1000, self(), Msg),
@@ -39,13 +39,15 @@ del_self(Key) ->
 % %%//////////////////////////////////////////////////
 % %%挂在单独线程中
 % %%//////////////////////////////////////////////////
+%% 可恢复型 timertask
 add(Time, Key, M, F, A) ->
 	delete(Key),
 	Now = time_utils:now(),
 	{ok, Tref} = timer:apply_after(timer:seconds(Time), M, F, A),
 	T = Now + Time,
-	erl_counter:set_timeout({timertask, Key}, T, {T, Tref}).
+	erl_counter:set_timeout({timertask, Key}, T, {T, Tref, M, F, A}).
 
+%% 不可恢复型 timertask
 add(Time, Key, Pid, Msg) ->
 	delete(Key), 
 	Now = time_utils:now(),

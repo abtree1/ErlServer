@@ -24,15 +24,19 @@
 start() -> 
 	mnesia:create_schema([node()]),
     mnesia:start(),
+    %% forever memory
 	mnesia:create_table(mapper, [{disc_copies, [node()]},
                                  {type, set},
                                  {attributes, record_info(fields, mapper)}]),
+	%% forever counter
     mnesia:create_table(counter, [{disc_copies, [node()]},
                                   {type, set},
                                   {attributes, record_info(fields, counter)}]),
+    %% timeout memory, auto clean
     mnesia:create_table(timeout_counter, [{disc_copies, [node()]},
                                         {type, set},
                                         {attributes, record_info(fields, timeout_counter)}]),
+    %% daily counter, auto clean
     create_table_daily_counter(),
     mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000),
     mnesia:dirty_read(mapper, {test,1}).
@@ -58,6 +62,10 @@ get_timeout(Name) ->
 	end.
 
 set_timeout(Name, Timeout, Value) ->
+	case mnesia:dirty_read(timeout_counter, Name) of
+		[] -> ok; 
+		[_Counter] -> del_timeout(Name)
+	end,
 	mnesia:dirty_write(timeout_counter, #timeout_counter{name = Name, timeout = Timeout, value = Value}).
 
 del_timeout(Name) ->

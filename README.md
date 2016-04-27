@@ -13,12 +13,12 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
 
 4.读取配置文件，并转换为record:
   1,配置项保存格式[{key, value, value,...},{key, value, value,...}...]
-  2,不同的配置表保存在ets里
+  2,不同的配置表保存在ets里(已废弃使用ets，改用文件存储)
   	key = 表名（term）
   	value = 1的配置项
   3,每个配置项对应一个与表明相同的record，在读取的时候会自动转换为相应的record
-  	record信息保存在config.hrl中，after_server_start后，该文件自动生成
-  4,考虑放弃ets表，将数据存入config_data.hrl中
+  	record信息保存在config.hrl中，make config || make start，该文件自动生成
+  4,放弃ets表，将数据存入config_data.hrl中
     
     config文件必须满足的格式：
         由于erlang语言的特性，config文件最好不使用大写字母,至少首字母不能大写
@@ -31,4 +31,5 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
 6.dirty words 为了加快其遍历速度，将其作为特殊配置文件处理，采用字典树。其配置文件dirtywords.filter，换行符可以是"\r\n" 或 "\n"
 
 7.erl_counter 用于记录游戏运行时数据，同时处理延时任务，运行时数据用mnesia存储，timertask延时任务，有两种解决方案，其一为绑定在各个线程上，让各个线程自己处理自己的延时任务，这样异步性较好，但每个线程都需要处理自己的handle info消息，其二为用一个统一的线程来处理所有的timertask任务。
+    timertask数据恢复，通过MFA完成的timertask可以数据恢复
 

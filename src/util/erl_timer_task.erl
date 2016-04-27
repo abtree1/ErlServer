@@ -3,10 +3,12 @@
 -export([add_self/3,
 		lookup_self/1,
 		del_self/1]).
-% -export([add/3,
-% 		lookup/1,
-% 		del_self/1,
-% 		callback_self/1]).
+-export([add/4,
+		add/5,
+		update/4,
+		update/5,
+		lookup/1,
+		delete/1]).
 
 
 % %%//////////////////////////////////////////////////
@@ -32,16 +34,41 @@ del_self(Key) ->
 			erl_counter:del_timeout({timertask, Key}),
 			erlang:cancel_timer(TimeRef)
 	end.
-
 % %%//////////////////////////////////////////////////
 
 % %%//////////////////////////////////////////////////
 % %%挂在单独线程中
 % %%//////////////////////////////////////////////////
-% add(Time, Key, MFA) -> ok.
+add(Time, Key, M, F, A) ->
+	delete(Key),
+	Now = time_utils:now(),
+	{ok, Tref} = timer:apply_after(timer:seconds(Time), M, F, A),
+	T = Now + Time,
+	erl_counter:set_timeout({timertask, Key}, T, {T, Tref}).
 
-% update(Time, Key, MFA) -> ok.
+add(Time, Key, Pid, Msg) ->
+	delete(Key), 
+	Now = time_utils:now(),
+	{ok, Tref} = timer:send_after(timer:seconds(Time), Pid, Msg),
+	T = Now + Time,
+	erl_counter:set_timeout({timertask, Key}, T, {T, Tref}).
 
-% lookup(Key) -> ok.
+update(Time, Key, M, F, A) -> 
+	add(Time, Key, M, F, A).
 
-% cancel(Key) -> ok.
+update(Time, Key, Pid, Msg) -> 
+	add(Time, Key, Pid, Msg).
+
+lookup(Key) ->
+	case erl_counter:get_timeout({timertask, Key}) of 
+		undefined -> 0;
+		{Time, _Ref} ->
+			Now = time_utils:now(),
+			Time - Now
+	end.
+	
+delete(Key) -> 
+	case erl_counter:get_timeout({timertask, Key}) of 
+		undefined -> ok;
+		{_, Ref} -> timer:cancel(Ref)
+	end.

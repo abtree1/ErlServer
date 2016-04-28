@@ -1,5 +1,7 @@
 ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafei198/game_server.git）的GameServer，本文件记录整个项目创建过程,rebar 可通过github获取
 
+    由于个人原因，该项目大部分模块耦合性比较高，也就是说，许多模块之间存在比较复杂的依赖关系，所以，大部分模块不能直接单独独立出来使用
+
 1. 通过rebar创建项目 ./rebar create-app appid=erl_server
 
 2. 编写makefile来启动项目
@@ -32,4 +34,8 @@ ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafe
 
 7.erl_counter 用于记录游戏运行时数据，同时处理延时任务，运行时数据用mnesia存储，timertask延时任务，有两种解决方案，其一为绑定在各个线程上，让各个线程自己处理自己的延时任务，这样异步性较好，但每个线程都需要处理自己的handle info消息，其二为用一个统一的线程来处理所有的timertask任务。
     timertask数据恢复，通过MFA完成的timertask可以数据恢复
+
+8.数据库操作至少需要满足两个要求,其一，将数据导入到内存中，自动转换为相应的record，其二，支持sql语句操作,同时，数据库的创建过程应该被记录
+  
+  特殊：由于系统用了许多erl_counter，增加key_words文件，记录系统使用的key，在其它地方，不可重复使用
 

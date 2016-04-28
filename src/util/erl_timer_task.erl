@@ -45,7 +45,7 @@ add(Time, Key, M, F, A) ->
 	Now = time_utils:now(),
 	{ok, Tref} = timer:apply_after(timer:seconds(Time), M, F, A),
 	T = Now + Time,
-	erl_counter:set_timeout({timertask, Key}, T, {T, Tref, M, F, A}).
+	erl_counter:set_timeout({timertask_desk, Key}, T, {T, Tref, M, F, A}).
 
 %% 不可恢复型 timertask
 add(Time, Key, Pid, Msg) ->

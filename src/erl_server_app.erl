@@ -14,6 +14,7 @@ start(_StartType, _StartArgs) ->
     lager:start(),
     ensure_started(erl_config),
     ensure_started(erl_counter),
+    timer:start(),
     R = erl_server_sup:start_link(),
     life_cycle:after_start(),
     R.

@@ -8,4 +8,5 @@ config() ->
 	init:stop().
 
 after_start() -> 
-	erl_counter:start().
+	erl_counter:start(),
+	random:seed(erlang:now()).

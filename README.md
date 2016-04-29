@@ -1,9 +1,13 @@
 ErlServer为一个练手项目，参考朋友的项目（https://github.com/mafei198/game_server.git）的 GameServer。
     
 run server：(if windows, use git bash please)
+
   1,update file include/properties.hrl about database part
+
   2,login in your mysql, just create your databases without tables
+
   3,\> make
+
   4,\> make start, make start would init your config by *.conf files and db by db.sql 
     or \> make console, just start server
 

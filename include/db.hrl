@@ -1,0 +1,2 @@
+-record(user, {uuid,name,level}).
+-record(item, {uuid,name,amount,type}).

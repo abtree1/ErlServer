@@ -12,8 +12,11 @@
 start(_StartType, _StartArgs) ->
     %% 先生成配置文件
     lager:start(),
+    ensure_started(crypto),
     ensure_started(erl_config),
     ensure_started(erl_counter),
+    ensure_started(emysql),
+    ensure_started(erl_db),
     timer:start(),
     R = erl_server_sup:start_link(),
     life_cycle:after_start(),

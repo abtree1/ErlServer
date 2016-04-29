@@ -7,5 +7,9 @@
 -define(DATABASE, "erl_server").
 -define(DATABASE_U, "root").
 -define(DATABASE_P, "root").
+-define(DATABASE_H, "127.0.0.1").
+-define(DATABASE_O, 3306).
+-define(DATABASE_S, 10).
+-define(DATABASE_C, utf8).
 -define(DATABASE_SQL, "config/db.sql").
 -define(DATABASE_HRL, "include/db.hrl").

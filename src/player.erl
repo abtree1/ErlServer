@@ -11,6 +11,7 @@
          terminate/2,
          code_change/3]).
 -export([recv_msg/2,
+        send_data/2,
         stop/1]).
 
 -record(state, {player_id, socket}).
@@ -21,6 +22,16 @@ start_link({PlayerId, Socket}) ->
 recv_msg(Pid, Msg) ->
     gen_server:cast(Pid, {message, Msg}).
 
+send_data(Data) ->
+    Socket = get(socket),
+    gen_tcp:send(Socket, Data).
+
+send_data(PlayerId, Data) ->
+    case player_sup:get_pid(PlayerId) of 
+        false -> false;
+        Pid -> gen_server:cast(Pid, {send, Data})
+    end.
+
 stop(Pid) ->
     gen_server:cast(Pid, stop).
 
@@ -30,6 +41,7 @@ stop(Pid) ->
 
 init([PlayerId, Socket]) ->
     error_logger:info_msg("player,init: ~p,~p~n", [PlayerId, Socket]),
+    put(socket, Socket),
     {ok, #state{player_id=PlayerId, socket=Socket}}.
 
 handle_call(_Request, _From, State) ->
@@ -37,9 +49,13 @@ handle_call(_Request, _From, State) ->
 
 handle_cast({message, Msg}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [Msg]),
-    gen_tcp:send(State#state.socket, <<"Return Data!">>),
     {noreply, State};
+handle_cast({send, Data}, State) ->
+    gen_tcp:send(State#state.socket, Data),
+    {stop, State};
 handle_cast(stop, State) ->
+    player_sup:offline(State#state.player_id),
+    erase(socket),
     {stop, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.

@@ -13,3 +13,5 @@
 -define(DATABASE_C, utf8).
 -define(DATABASE_SQL, "config/db.sql").
 -define(DATABASE_HRL, "include/db.hrl").
+
+-define(TCP_LISTEN_PORT, 5555).

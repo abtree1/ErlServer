@@ -80,10 +80,4 @@ code_change(_OldVsn, State, _Extra) ->
 %%% private function
 %%%===================================================================
 init_db_pool() ->
-    emysql:add_pool(?DB_POOL, [{size, ?DATABASE_S},
-                     {user, ?DATABASE_U},
-                     {password, ?DATABASE_P},
-                     {host, ?DATABASE_H},
-                     {port, ?DATABASE_O},
-                     {database, ?DATABASE},
-                     {encoding, ?DATABASE_C}]).
+    emysql:add_pool(?DB_POOL, ?DATABASE_S, ?DATABASE_U, ?DATABASE_P, ?DATABASE_H, ?DATABASE_O, ?DATABASE, ?DATABASE_C).

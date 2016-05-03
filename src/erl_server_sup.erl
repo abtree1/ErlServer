@@ -25,6 +25,8 @@ start_link() ->
 
 init([]) ->
 	ErlServerSpec = ?CHILD(erl_server, erl_server, worker, []),
-    Specs = [ErlServerSpec],
+	ErlConnSupSpec = ?CHILD(erl_conn_sup, erl_conn_sup, supervisor, []),
+	PlayerSupSpec = ?CHILD(player_sup, player_sup, supervisor, []),
+    Specs = [ErlServerSpec, ErlConnSupSpec, PlayerSupSpec],
     {ok, { {one_for_one, 10, 10}, Specs} }.
 

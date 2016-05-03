@@ -34,9 +34,9 @@
 	       port :: number(), 
 	       database :: list(), 
 	       encoding :: atom(), 
-	       available=queue:new() :: queue(), 
-	       locked=gb_trees:empty() :: gb_tree(), 
-	       waiting=queue:new() :: queue(), 
+	       available=queue:new() :: queue:queue(), 
+	       locked=gb_trees:empty() :: gb_tree:gb_tree(), 
+	       waiting=queue:new() :: queue:queue(), 
 	       start_cmds=[] :: list(), 
 	       conn_test_period=0 :: number(), 
 	       connect_timeout=infinity :: number() | infinity}).

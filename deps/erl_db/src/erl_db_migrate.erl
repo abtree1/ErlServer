@@ -38,8 +38,8 @@ create_records() ->
 	Records = lists:foldl(fun([Table], AccIn) ->
 		List = io_lib:format("show columns from `~s`;", [Table]),
 		Columns = select(list_to_binary(List)),
-		Cols = lists:foldl(fun([Column|_pros], AccIn) ->
-			[Column|AccIn]
+		Cols = lists:foldl(fun([Column|_pros], AccIn1) ->
+			[Column|AccIn1]
 		end, [], Columns),
 		Cs = binary_string:join(lists:reverse(Cols), <<",">>),
 		Record = << <<"-record(">>/binary, Table/binary, <<", {">>/binary, Cs/binary, <<"}).\r\n">>/binary >>,

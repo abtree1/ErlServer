@@ -661,7 +661,7 @@ result_type(#eof_packet{})    -> eof.
 -spec as_dict(Result) -> Dict
   when
     Result :: #result_packet{},
-    Dict :: dict().
+    Dict :: dict:dict().
 as_dict(Res) -> emysql_conv:as_dict(Res).
 
 

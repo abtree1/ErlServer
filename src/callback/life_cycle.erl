@@ -14,4 +14,5 @@ migrate() ->
 
 after_start() -> 
 	erl_counter:start(),
+	erl_conn_sup:conn_begin(),
 	random:seed(erlang:now()).

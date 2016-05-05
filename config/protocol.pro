@@ -1,0 +1,20 @@
+request_user_infos:1
+    #empty
+request_item_infos:2
+    #empty
+request_remote_user_info:
+    uuid:string
+user:3
+    uuid:string
+    name:string
+    level:integer
+users:4
+    user:array-user
+item:
+    uuid:string
+    name:string
+    amount:integer
+items:
+    user:user
+    other:string
+    item:array-item

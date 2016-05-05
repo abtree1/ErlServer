@@ -1,0 +1,1 @@
+-define(PROTORULE, [{request_user_infos, {}},{request_item_infos, {}},{request_remote_user_info, {string}},{user, {string,string,integer}},{users, {[{string,string,integer}]}},{item, {string,string,integer}},{items, {{string,string,integer},string,[{string,string,integer}]}}]). 

@@ -19,8 +19,8 @@ start_child([Socket]) ->
 
 get_pid(Uuid) ->
     case lookup({player, Uuid}) of
-            false -> false;
-            {_, Pid} = Pid 
+        false -> false;
+        {_, Pid} -> Pid 
     end.
 
 offline(Uuid) ->

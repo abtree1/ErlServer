@@ -1,6 +1,9 @@
 -module(life_cycle).
 
--export([config/0, migrate/0, after_start/0]).
+-export([config/0, 
+		migrate/0, 
+		protocol/0, 
+		after_start/0]).
 
 config() ->
 	erl_config_file:decompress(),
@@ -12,7 +15,12 @@ migrate() ->
 	erl_db:migrate(),
 	init:stop().
 
+protocol() ->
+	parse_file:parse_protocol(),
+	parse_file:parse_controller(),
+	init:stop().
+
 after_start() -> 
 	erl_counter:start(),
 	erl_conn_sup:conn_begin(),
-	random:seed(erlang:now()).
+	random:seed(os:timestamp()).

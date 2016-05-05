@@ -1,0 +1,2 @@
+-define(PROTOIDENUM, [{1, request_user_infos}, {2, request_item_infos}, {7, request_remote_user_info}, {3, user}, {4, users}, {6, item}, {5, items}]). 
+-define(PROTONAMEENUM, [{request_user_infos, 1}, {request_item_infos, 2}, {request_remote_user_info, 7}, {user, 3}, {users, 4}, {item, 6}, {items, 5}]). 

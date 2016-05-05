@@ -17,9 +17,9 @@
         has_dirty_word/1]).
 
 -record(state, {}).
--include("../../include/config.hrl").
--include("../../include/config_data.hrl").
--include("../../include/dirtywords.hrl").
+-include("../../include/auto/config.hrl").
+-include("../../include/auto/config_data.hrl").
+-include("../../include/auto/dirtywords.hrl").
 
 -define(SERVER, ?MODULE).
 

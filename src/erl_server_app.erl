@@ -11,7 +11,7 @@
 
 start(_StartType, _StartArgs) ->
     %% 先生成配置文件
-    lager:start(),
+    %% lager:start(),
     ensure_started(crypto),
     ensure_started(erl_config),
     ensure_started(erl_counter),

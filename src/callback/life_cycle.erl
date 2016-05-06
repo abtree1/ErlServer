@@ -22,5 +22,5 @@ protocol() ->
 
 after_start() -> 
 	erl_counter:start(),
-	erl_conn_sup:conn_begin(),
+	erl_conn:conn_begin(),
 	random:seed(os:timestamp()).

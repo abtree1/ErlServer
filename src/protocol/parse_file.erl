@@ -71,11 +71,11 @@ write_protocol(Lists, Ids) ->
 	{IdStr, NameStr, Res} = analyse_write(Lists, Ids, 1, [], [], [], []),
 	BinIds = binary_idstr(IdStr),
 	BinNames = binary_namestr(NameStr),
-	error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [Res]),
+	%% error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [Res]),
 	NRes = type_simple(Res),
-	error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [NRes]),
+	%% error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [NRes]),
 	BinRes = binary_res(NRes),
-	error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [BinRes]),
+	%% error_logger:info_msg("XXXXXXXXXXXXXXXXXXXX~n~p~nXXXXXXXXXXXXXXXXXXXXX~n", [BinRes]),
 	file:write_file(?PROTOCOL_ENUM, [BinIds, BinNames]),
 	file:write_file(?PROTOCOL_RULES, BinRes).
 

@@ -1,2 +1,2 @@
--record(user, {uuid,name,level}).
+-record(user, {uuid,name,level,account,passwd}).
 -record(item, {uuid,name,amount,type}).

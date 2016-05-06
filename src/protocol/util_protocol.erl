@@ -35,7 +35,7 @@ encode_bool(Bool) ->
 	if 
 		Bool =:= true -> <<1:?BOOLEAN>>;
 		Bool =:= 1 -> <<1:?BOOLEAN>>;
-		true -> <<1:?BOOLEAN>>
+		true -> <<0:?BOOLEAN>>
 	end.
 
 decode_bool(<<Bin/binary>>) ->

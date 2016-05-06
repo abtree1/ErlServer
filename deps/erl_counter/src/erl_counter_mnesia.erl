@@ -22,7 +22,7 @@
 		clear_timeout_counter/0]).
 
 start() ->
-	error_logger:info_msg("erl_counter_begin"),
+	%% error_logger:info_msg("erl_counter_begin"),
 	mnesia:create_schema([node()]),
     mnesia:start(),
     %% forever memory
@@ -40,7 +40,7 @@ start() ->
     %% daily counter, auto clean
     create_table_daily_counter(),
     mnesia:wait_for_tables([mapper, counter, timeout_counter], 10000),
-    error_logger:info_msg("erl_counter_end"),
+    %% error_logger:info_msg("erl_counter_end"),
     restart_timertask().
 
 get(Name) ->

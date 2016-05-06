@@ -78,24 +78,49 @@ on_accept(LSock) ->
 on_recv(Socket, Pid) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Bin} ->
-            Data = trans_data:decode(Bin),
+            {Term, Data} = trans_data:decode(Bin),
             error_logger:info_msg("erl_conn:tcp, on_recv: ~p~n", [Data]),
-            send_data(Socket),
-            on_recv(Socket, Pid);
-        % {ok, B} when Pid =:= undefined->
-        %     error_logger:info_msg("erl_conn:tcp, on_recv: ~p~n", [B]),
-        %     Id = player_sup:start_child([Socket]),
-        %     on_recv(Socket, Id);
-        % {ok, B} ->
-        %     error_logger:info_msg("erl_conn:tcp, on_recv: ~p~n", [B]),
-        %     player:recv_msg(Pid, B),
-        %     on_recv(Socket, Pid);
+            NPid = case Term of 
+                request_account_enter -> account_enter(Socket, Data, Pid);
+                _ when Pid =:= undefined -> undefined;
+                _ -> 
+                    player:recv_msg(Pid, {Term, Data}),
+                    Pid
+            end,
+            on_recv(Socket, NPid);
         {error, closed} ->
             error_logger:info_msg("erl_conn:tcp, on_recv: stop"),
             player:stop(Pid),
             {ok, closed}
     end.
 
-send_data(Socket) ->
-    Bin = trans_data:encode({user, {<<"abc">>, <<"def">>, 32}}),
+account_enter(Socket, {Account, Passwd}, Pid) ->
+    Sql = sql_format:account_enter(Account),
+    MD5Pwd = erlang:md5(Passwd),
+    Res = erl_db:select(Sql),
+    case Res of 
+        [{_Uuid, _Account, LoadPasswd}] when MD5Pwd =/= LoadPasswd ->
+            send_data(Socket, {account_enter_ret, {<<"error_login_passwd">>}}),
+            Pid;
+        [{_Uuid, _Account, _LoadPasswd}] when Pid =:= undefined -> 
+            Nid = case player_sup:get_pid(Uuid) of 
+                false -> player_sup:start_child(Socket, Uuid);
+                Id -> Id
+            end,
+            player:account_enter(Nid),
+            Nid;
+        [{_Uuid, _Account, _LoadPasswd}] ->
+            player:account_enter(Pid),
+            Pid;
+        _ when Pid =:= undefined -> 
+            Id = player_sup:start_child(Socket),
+            new_player(Id, {Account, Passwd}),
+            Id;
+        _ -> 
+            new_player(Pid, {Account, Passwd}),
+            Pid
+    end.
+
+send_data(Socket, Data) ->
+    Bin = trans_data:encode(Data),
     gen_tcp:send(Socket, Bin).

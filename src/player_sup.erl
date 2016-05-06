@@ -2,7 +2,7 @@
 -behaviour(supervisor).
 -include("../include/properties.hrl").
 %% API
--export([start_link/0, start_child/1]).
+-export([start_link/0, start_child/1, start_child/2]).
 -export([init/1, get_pid/1, offline/1]).
 
 -define(CHILD(Id, Mod, Type, Args), {Id, {Mod, start_link, Args},
@@ -11,8 +11,11 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-start_child([Socket]) ->
+start_child(Socket) ->
     Uuid = uuid_factory:get_uuid(),
+    start_child(Socket, Uuid).
+
+start_child(Socket, Uuid) ->
     {ok, Pid} = supervisor:start_child(?MODULE, [{Uuid, Socket}]),
     insert({player, Uuid}, {Socket, Pid}),
     Pid.

@@ -14,4 +14,5 @@ decode(Bin) ->
 	{Id, BinLeft} = util_protocol:decode_short(Bin),
 	{Id, Term} = lists:keyfind(Id, 1, ?PROTOIDENUM), 
     {_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
-    util_protocol:decode_tuple(BinLeft, Rules).
+    Data = util_protocol:decode_tuple(BinLeft, Rules),
+    {Term, Data}.

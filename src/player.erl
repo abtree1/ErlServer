@@ -1,5 +1,6 @@
 -module(player).
 -behaviour(gen_server).
+-include("../include/auto/proto_controller.hrl").
 %% API
 -export([start_link/1]).
 
@@ -10,7 +11,8 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
--export([recv_msg/2,
+-export([account_enter/2,
+        recv_msg/2,
         send_data/2,
         stop/1]).
 
@@ -18,6 +20,9 @@
 
 start_link({PlayerId, Socket}) ->
     gen_server:start_link(?MODULE, [PlayerId, Socket], []).
+
+new_player(Pid, Data) -> ok.
+account_enter(Pid) -> ok.
 
 recv_msg(Pid, Msg) ->
     gen_server:cast(Pid, {message, Msg}).
@@ -47,8 +52,10 @@ init([PlayerId, Socket]) ->
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast({message, Msg}, State) ->
+handle_cast({message, {Term, Data}}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [Msg]),
+    {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
+    erlang:apply(Module, Fun, [State#state.player_id, Data]),
     {noreply, State};
 handle_cast({send, Data}, State) ->
     gen_tcp:send(State#state.socket, Data),

@@ -1,14 +1,19 @@
-request_user_infos:1
+request_account_enter:1
+    account:string
+    password:string
+request_user_infos:
     #empty
-request_item_infos:2
+request_item_infos:
     #empty
 request_remote_user_info:
     uuid:string
-user:3
+account_enter_ret:2
+    error_code:string
+user:
     uuid:string
     name:string
     level:integer
-users:4
+users:
     user:array-user
 item:
     uuid:string

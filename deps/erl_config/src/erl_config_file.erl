@@ -82,10 +82,13 @@ analyse_conf_head(Head) ->
 % 	analyse_conf_data(Datas, Types, [Value|Result]).
 
 %% for file branch
-analyse_conf_data([], _Types, Result) -> lists:reverse(Result);
+analyse_conf_data(_Data, [], Result) -> lists:reverse(Result);
+analyse_conf_data([], [Type|Types], Result) ->
+	analyse_conf_data([], Types, [<<"undefined">>|Result]);
 analyse_conf_data([Data|Datas], [Type|Types], Result) ->
 	%  error_logger:info_msg("analyse_conf_data:~p, ~p, ~p, ~p ~n", [Data, Datas, Type, Types]),
 	Value = case Type of 
+		_ when Data =:= <<"">> -> <<"undefined">>;
 		<<"integer">> -> Data;
 		<<"string">> -> << <<"<<\"">>/binary, Data/binary, <<"\">>">>/binary >>;
 		<<"float">> -> Data

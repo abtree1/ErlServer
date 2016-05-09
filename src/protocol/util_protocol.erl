@@ -30,6 +30,32 @@
           decode_list/2,
           encode_string/1,
           decode_string/1]).
+-export([get_byte_size/1,
+        get_bit_size/1]).
+
+get_byte_size(Term) ->
+    case Term of
+        bool -> ?BOOLEAN div 8;
+        char -> ?CHAR div 8;
+        short -> ?SHORT div 8;
+        integer -> ?INTEGER div 8;
+        float -> ?FLOAT div 8;
+        string -> ?STRING div 8;
+        array -> ?ARRAY div 8;
+        _ -> undefined
+    end.
+
+get_bit_size(Term) ->
+    case Term of
+        bool -> ?BOOLEAN;
+        char -> ?CHAR;
+        short -> ?SHORT;
+        integer -> ?INTEGER;
+        float -> ?FLOAT;
+        string -> ?STRING;
+        array -> ?ARRAY;
+        _ -> undefined
+    end.
 
 encode_bool(Bool) ->
 	if 

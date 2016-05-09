@@ -1,2 +1,2 @@
--record(test, {id,param1,param2,param3}).
 -record(tt, {id,params1,params2}).
+-record(error_code, {id,code}).

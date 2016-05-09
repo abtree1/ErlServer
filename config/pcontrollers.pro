@@ -1,6 +1,6 @@
 #request
 request_account_enter:
-	login_controller:login
+	user_controller:login
 request_user_infos:
 	user_controller:infos
 request_remote_user_info:

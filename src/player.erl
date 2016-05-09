@@ -12,7 +12,9 @@
          terminate/2,
          code_change/3]).
 -export([account_enter/2,
+        new_player/2,
         recv_msg/2,
+        send_data/1,
         send_data/2,
         stop/1]).
 
@@ -21,8 +23,11 @@
 start_link({PlayerId, Socket}) ->
     gen_server:start_link(?MODULE, [PlayerId, Socket], []).
 
-new_player(Pid, Data) -> ok.
-account_enter(Pid) -> ok.
+new_player(Pid, Data) ->
+    gen_server:cast(Pid, {new_player, Data}).
+
+account_enter(Pid, Term) -> 
+    gen_server:cast(Pid, {account_enter, Term}).
 
 recv_msg(Pid, Msg) ->
     gen_server:cast(Pid, {message, Msg}).
@@ -32,6 +37,7 @@ send_data(Data) ->
     gen_tcp:send(Socket, Data).
 
 send_data(PlayerId, Data) ->
+
     case player_sup:get_pid(PlayerId) of 
         false -> false;
         Pid -> gen_server:cast(Pid, {send, Data})
@@ -52,8 +58,18 @@ init([PlayerId, Socket]) ->
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
+handle_cast({account_enter, Term}, State) ->
+    error_logger:info_msg("player,handle_cast: ~p~n", [{account_enter, Term}]),
+    {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
+    erlang:apply(Module, Fun, [State#state.player_id, {}]),
+    {noreply, State};
+handle_cast({new_player, {Term, Account, Passwd}}, State) ->
+    error_logger:info_msg("player,handle_cast: ~p~n", [{new_player, Account}]),
+    {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
+    erlang:apply(Module, Fun, [State#state.player_id, {Account, Passwd}]),
+    {noreply, State};
 handle_cast({message, {Term, Data}}, State) ->
-    error_logger:info_msg("player,handle_cast: ~p~n", [Msg]),
+    error_logger:info_msg("player,handle_cast: ~p~n", [{Term, Data}]),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
     erlang:apply(Module, Fun, [State#state.player_id, Data]),
     {noreply, State};

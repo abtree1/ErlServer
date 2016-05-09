@@ -10,9 +10,19 @@ encode({Term, Data}) ->
     {_, Id} = lists:keyfind(Term, 1, ?PROTONAMEENUM),
     util_protocol:encode_tuple({Id, Data}, {short, Rules}).
 
+decode(<<>>) -> false;
 decode(Bin) ->
-	{Id, BinLeft} = util_protocol:decode_short(Bin),
-	{Id, Term} = lists:keyfind(Id, 1, ?PROTOIDENUM), 
-    {_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
-    Data = util_protocol:decode_tuple(BinLeft, Rules),
-    {Term, Data}.
+	Size = util_protocol:get_bit_size(short),
+	Size1 = erlang:bit_size(Bin),
+	if 
+		Size > Size1 -> false;
+		true ->
+			{Id, BinLeft} = util_protocol:decode_short(Bin),
+			case lists:keyfind(Id, 1, ?PROTOIDENUM) of 
+				false -> false;
+				{Id, Term} ->
+		    		{_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
+		    		{Data, _} = util_protocol:decode_tuple(BinLeft, Rules),
+		    		{Term, Data}
+		    end
+	end.

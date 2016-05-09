@@ -1,1 +1,1 @@
--define(CONFIGMAP, [{test, [{1,<<"string1">>,1,1.0},{2,<<"string2">>,2,2.1}]},{tt, [{1,1,1},{2,2,2}]}]).
+-define(CONFIGMAP, [{tt, [{1,1,1},{2,2,2}]},{error_code, [{1,<<"error_login_passwd">>}]}]).

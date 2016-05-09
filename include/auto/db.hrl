@@ -1,2 +1,3 @@
+-define(DB_TABLE_NAMES, [user,item]).
 -record(user, {uuid,name,level,account,passwd}).
 -record(item, {uuid,name,amount,type}).

@@ -35,7 +35,7 @@ deal_items([Index, Sql|Lists], Olds, Results) ->
 
 create_records() ->
 	Tables = select(<<"show tables;">>),
-	Records = lists:foldl(fun([Table], AccIn) ->
+	{Records, Ns} = lists:foldl(fun([Table], {AccIn, Names}) ->
 		List = io_lib:format("show columns from `~s`;", [Table]),
 		Columns = select(list_to_binary(List)),
 		Cols = lists:foldl(fun([Column|_pros], AccIn1) ->
@@ -43,9 +43,11 @@ create_records() ->
 		end, [], Columns),
 		Cs = binary_string:join(lists:reverse(Cols), <<",">>),
 		Record = << <<"-record(">>/binary, Table/binary, <<", {">>/binary, Cs/binary, <<"}).\r\n">>/binary >>,
-		[Record|AccIn]
-	end, [], Tables),
-	file:write_file(?DATABASE_HRL, Records).
+		{[Record|AccIn], [Table|Names]}
+	end, {[], []}, Tables),
+	Nas = binary_string:join(Ns, <<",">>),
+	Na = << <<"-define(DB_TABLE_NAMES, [">>/binary, Nas/binary, <<"]).\r\n">>/binary >>,
+	file:write_file(?DATABASE_HRL, [Na|Records]).
 
 select(Sql) ->
 	Pool = get({migrate, dbpool}),

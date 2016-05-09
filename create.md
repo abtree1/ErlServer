@@ -44,3 +44,5 @@
 10.虽然在protocol这块，我打算引入外部库，不过，我还是先自己实现一下，毕竟是练手项目。protocol由配置文件解析,参考google protocol buffer，但google proto buff的消息内容是和协议分开的。此处也要考虑，外部语言的不确定性。
     
     目前实现的协议解析版本要求protocol.pro中配置的解析格式，其中协议名后面的数字为协议id，可不配，如果不配，会自动分配。protocol.pro文件需要对应的client也能解析，pcontrollers.pro为协议的处理函数配置，只需本server解析，与外部处理无关。
+
+11.封装record操作，需要导出record的结构，在此，由于动态导出record结构比较复杂，此处导入parse_trans库

@@ -17,9 +17,9 @@ send(Sock, {Term, Data}) ->
 	{_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
 	{_, Id} = lists:keyfind(Term, 1, ?PROTONAMEENUM),
 	Bin = util_protocol:encode_tuple({Id, Data}, {short, Rules}),
-	gen_tcp:send(Sock, Bin),
-    {ok, Recv} = gen_tcp:recv(Sock, 0),
-    Recv.
+	gen_tcp:send(Sock, Bin).
+    %% {ok, Recv} = gen_tcp:recv(Sock, 0),
+    %% Recv.
 
 stop(Sock) ->
 	gen_tcp:close(Sock).

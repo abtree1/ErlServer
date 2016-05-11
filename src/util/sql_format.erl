@@ -1,8 +1,9 @@
 -module(sql_format).
 
 -export([account_enter/1,
-		create_model/1,
+		create/1,
 		find_by/3,
+        update/1,
 		update_by/3,
 		count_by/3,
 		delete_by/3]).
@@ -10,7 +11,7 @@
 account_enter(Account) ->
 	format("select uuid, account, passwd from user where account = '~s';", [Account]).
 
-create_model(Record) ->
+create(Record) ->
 	[TableName|Data] = tuple_to_list(Record),
 	Fields = record_mapper:get_mapping(TableName),
     {Fs, Vs} = foldl(Fields, Data),
@@ -20,6 +21,11 @@ create_model(Record) ->
 
 find_by(Table, Field, Value) ->
 	format("SELECT * FROM `~s` WHERE `~s` = ~s;", [Table, Field, encode(Value)]).
+
+update(Record) ->
+    Field = uuid,
+    Value = record_mapper:get_field(uuid, Record),
+    update_by(Field, Value, Record).
 
 update_by(Field, Value, Record) ->
 	[Table|Values] = tuple_to_list(Record),

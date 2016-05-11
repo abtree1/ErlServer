@@ -14,6 +14,9 @@
 -define(DATABASE_SQL, "config/db.sql").
 -define(DATABASE_HRL, "include/auto/db.hrl").
 
+-define(STATE_MODEL_CREATE, 1).
+-define(STATE_MODEL_LOAD, 2).
+
 -define(TCP_LISTEN_PORT, 5555).
 
 -define(PROTOCOL_UTIL_FILE, "config/protocol.pro").

@@ -46,7 +46,7 @@ analyse_conf(Name, Context) ->
 				%% for ets branch
 				%% [list_to_tuple(Res)|AccIn];
 				%% for file branch
-				Item = binary_string:join(Res, <<",">>),
+				Item = binary_string:join([Name|Res], <<",">>),
 				BItem = << <<"{">>/binary, Item/binary, <<"}">>/binary >>,
 				[BItem|AccIn];
 			true -> AccIn

@@ -54,11 +54,11 @@ handle_call({find, TableName, Key}, _From, State) ->
     Ret = case lists:keyfind(TableName, 1, ?CONFIGMAP) of 
         false -> false;
         {TableName, List} ->
-            case lists:keyfind(Key, 1, List) of
+            case lists:keyfind(Key, 2, List) of
                 false -> false;
-                Tuple ->
-                    List1 = tuple_to_list(Tuple),
-                    list_to_tuple([TableName|List1])
+                Tuple -> Tuple
+                    % List1 = tuple_to_list(Tuple),
+                    % list_to_tuple([TableName|List1])
             end
     end,
     {reply, Ret, State};

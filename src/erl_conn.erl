@@ -105,7 +105,7 @@ account_enter(Socket, {Term, {Account, Passwd}}, Pid) ->
     %% error_logger:info_msg("XXXXXXXXXX:~p~n", [Res]),
     case Res of 
         [[_Uuid, _Account, LoadPasswd]] when MD5Pwd =/= LoadPasswd ->
-            error_logger:info_msg("XXXXXXXXXX:~p =/= ~p~n", [MD5Pwd, LoadPasswd]),
+            %% error_logger:info_msg("XXXXXXXXXX:~p =/= ~p~n", [MD5Pwd, LoadPasswd]),
             send_data(Socket, {account_enter_ret, {<<"error_login_passwd">>}}),
             Pid;
         [[Uuid, _Account, _LoadPasswd]] when Pid =:= undefined -> 
@@ -113,17 +113,17 @@ account_enter(Socket, {Term, {Account, Passwd}}, Pid) ->
                 false -> player_sup:start_child(Socket, Uuid);
                 Id -> Id
             end,
-            player:account_enter(Nid, Term),
+            player:account_enter(Nid, Term, Socket),
             Nid;
         [[_Uuid, _Account, _LoadPasswd]] ->
-            player:account_enter(Pid, Term),
+            player:account_enter(Pid, Term, Socket),
             Pid;
         _ when Pid =:= undefined -> 
             Id = player_sup:start_child(Socket),
-            player:new_player(Id, {Term, Account, MD5Pwd}),
+            player:new_player(Id, {Term, Account, MD5Pwd}, Socket),
             Id;
         _ -> 
-            player:new_player(Pid, {Term, Account, MD5Pwd}),
+            player:new_player(Pid, {Term, Account, MD5Pwd}, Socket),
             Pid
     end.
 

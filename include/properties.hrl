@@ -16,6 +16,7 @@
 
 -define(STATE_MODEL_CREATE, 1).
 -define(STATE_MODEL_LOAD, 2).
+-define(STATE_MODEL_DELETE, 3).
 
 -define(TCP_LISTEN_PORT, 5555).
 

@@ -27,6 +27,8 @@ init([]) ->
 	ErlServerSpec = ?CHILD(erl_server, erl_server, worker, []),
 	ErlConnSupSpec = ?CHILD(erl_conn_sup, erl_conn_sup, supervisor, []),
 	PlayerSupSpec = ?CHILD(player_sup, player_sup, supervisor, []),
-    Specs = [ErlServerSpec, ErlConnSupSpec, PlayerSupSpec],
+	AllianceSupSpec = ?CHILD(alliance_sup, alliance_sup, supervisor, []),
+	RankSpec = ?CHILD(rank, rank, worker, []),
+    Specs = [ErlServerSpec, ErlConnSupSpec, PlayerSupSpec, AllianceSupSpec, RankSpec],
     {ok, { {one_for_one, 10, 10}, Specs} }.
 

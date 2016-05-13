@@ -106,7 +106,8 @@ load_all(PlayerId) ->
 			user -> uuid;
 			_ -> user_id
 		end,
-		Sql = sql_format:find_by(Table, Field, PlayerId),
+
+  		Sql = sql_format:find_by(Table, Field, PlayerId),
 		Records = erl_db:load(Sql, Table, record_mapper:get_mapping(Table)),
 		%% error_logger:info_msg("XXXXXXXXXX:~p~n", [Records]),
 		Res = lists:foldl(fun(Record, AccIn) ->

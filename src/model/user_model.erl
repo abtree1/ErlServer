@@ -18,7 +18,7 @@ create_player(PlayerId, {Accout, Passwd}) ->
 	util_model:save_all().
 
 load_player(PlayerId) ->
-	util_model:load_all(PlayerId).
+	load(PlayerId).
 
 change_name(Name) ->
 	User = lookup(),

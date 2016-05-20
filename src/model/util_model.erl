@@ -14,34 +14,37 @@
 		load/3,
 		save_all/0]).
 
-create(Term, Record) -> 
+create(Table, Record) -> 
+	sure_load_data(Table),
 	Uuid = record_mapper:get_field(Record, uuid),
-	update_load_models(Term),
-	case get(Term) of 
+	%% update_load_models(Table),
+	case get(Table) of 
 		undefined -> 
-			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
+			put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
 			Record;
 		[] -> 
-			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
+			put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
 			Record;
 		Records ->
 			case lists:keyfind(Uuid, 1, Records) of 
 				false -> 
-					put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}|Records]), 
+					put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}|Records]), 
 					Record;
 				_-> false
 			end
 	end.
 	
-find_count(Term) ->
-	case get(Term) of 
+find_count(Table) ->
+	sure_load_data(Table),
+	case get(Table) of 
 		undefined -> 0;
 		[] -> 0;
 		Records -> length(Records)
 	end.
 	
-find_all(Term) ->
-	case get(Term) of 
+find_all(Table) ->
+	sure_load_data(Table),
+	case get(Table) of 
 		undefined -> [];
 		[] -> [];
 		Records -> 
@@ -58,8 +61,9 @@ filter(Table, Field, Value) ->
 		_ -> fail
 	end.
 
-find(Term) ->
-	case get(Term) of 
+find(Table) ->
+	sure_load_data(Table),
+	case get(Table) of 
 		undefined -> undefined;
 		[] -> undefined;
 		Records ->
@@ -67,8 +71,9 @@ find(Term) ->
 			Record
 	end.
 
-find(Term, Key) ->
-	case get(Term) of 
+find(Table, Key) ->
+	sure_load_data(Table),
+	case get(Table) of 
 		undefined -> undefined;
 		[] -> undefined;
 		Records -> 
@@ -78,20 +83,21 @@ find(Term, Key) ->
 			end
 	end.
 
-update(Term, Record) ->
+update(Table, Record) ->
+	sure_load_data(Table),
 	Uuid = record_mapper:get_field(Record, uuid),
-	update_load_models(Term),
-	case get(Term) of 
+	%% update_load_models(Table),
+	case get(Table) of 
 		undefined -> 
-			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
+			put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
 			Record;
 		[] -> 
-			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
+			put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
 			Record;
 		Records ->
 			case lists:keyfind(Uuid, 1, Records) of 
 				false -> 
-					put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}|Records]), 
+					put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}|Records]), 
 					Record;
 				_ -> 
 					lists:keyreplace(Uuid, 1, Records, {Uuid, Record, ?STATE_MODEL_LOAD}),
@@ -99,8 +105,9 @@ update(Term, Record) ->
 			end
 	end.
 
-delete(Term, Key) ->
-	case get(Term) of 
+delete(Table, Key) ->
+	sure_load_data(Table),
+	case get(Table) of 
 		undefined -> undefined;
 		[] -> undefined;
 		Records -> 
@@ -123,7 +130,8 @@ load(Table, Field, Value) ->
 			Uuid = record_mapper:get_field(Record, uuid),
 			[{Uuid, Record, ?STATE_MODEL_LOAD}|AccIn]
 	end, [], Records),
-	put(Table, Res). 
+	put(Table, Res),
+	update_load_models(Table).
 
 save_all() ->
 	case get(load_models) of
@@ -172,4 +180,24 @@ execute_save(Table) ->
 			end, [], Records),
 			put(Table, Res)
 	end.
+
+sure_load_data(Table) ->
+	case is_load_data(Table) of 
+		false ->
+			PlayerID = case get(state_record) of
+				{_, Uuid, _} -> Uuid;
+				{_, Uuid} -> Uuid
+			end, 
+			Module = list_to_atom(atom_to_list(Table) ++ "_model"),
+			Module:load_data(PlayerID);
+		true -> ok
+	end.
+
+is_load_data(Table) ->
+	case get(load_models) of
+		undefined -> false; 
+		[] -> false;
+		List -> lists:member(Table, List) 
+	end.
+
 

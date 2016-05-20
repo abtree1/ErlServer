@@ -13,7 +13,10 @@
 -export([proxy/4,
         async_proxy/4,
         wrap/2,
-        async_wrap/2]).
+        async_wrap/2,
+        stop/1]).
+
+-define(SAVE_TIME, 600). %10 minutes
 -record(state, {uuid}).
 
 start_link(Uuid) ->
@@ -34,13 +37,19 @@ wrap(AllianceId, Fun) ->
     end.
 
 async_wrap(AllianceId, Fun) ->
-    gen_server:cast(AllianceId, {wrap, Fun}).
+    gen_server:cast(alliance_sup:get_pid(AllianceId), {wrap, Fun}).
+
+stop(AllianceId) ->
+    gen_server:cast(alliance_sup:get_pid(AllianceId), stop).
 
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
 init([Uuid]) ->
-    {ok, #state{uuid = Uuid}}.
+    erl_timer_task:add_self(?SAVE_TIME, self(), save_all),
+    State = #state{uuid = Uuid},
+    put(state_record, State),
+    {ok, State}.
 
 handle_call({wrap, Fun}, _From, State) ->
     Result = Fun(),
@@ -57,14 +66,22 @@ handle_cast({wrap, Fun}, State) ->
 handle_cast({proxy, Module, Fun, Args}, State) ->
     erlang:apply(Module, Fun, Args),
     {noreply, State};
+handle_cast(stop, State) ->
+    util_model:save_all(),
+    {stop, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_info(save_all, State) ->
+    util_model:save_all(),
+    erl_timer_task:add_self(?SAVE_TIME, self(), save_all),
+    {noreply, State};
 handle_info(Info, State) ->
     error_logger:info_msg("Alliance dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->
+    util_model:save_all(),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

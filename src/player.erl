@@ -22,7 +22,8 @@
         wrap/2,
         async_wrap/2]).
 
--record(state, {player_id, socket}).
+-define(SAVE_TIME, 600). %10 minutes
+-record(state, {uuid, socket}).
 
 start_link({PlayerId, Socket}) ->
     gen_server:start_link(?MODULE, [PlayerId, Socket], []).
@@ -37,12 +38,12 @@ recv_msg(Pid, Msg) ->
     gen_server:cast(Pid, {message, Msg}).
 
 send_data(Data) ->
-    Socket = get(socket),
+    State = get(state_record),
     if 
-        Socket =:= undefined -> ok;
+        State =:= undefined -> ok;
         true ->
             Bin = trans_data:encode(Data), 
-            gen_tcp:send(Socket, Bin)
+            gen_tcp:send(State#state.socket, Bin)
     end.
 
 send_data(PlayerId, Data) ->
@@ -66,7 +67,7 @@ wrap(PlayerId, Fun) ->
     end.
 
 async_wrap(PlayerId, Fun) ->
-    gen_server:cast(PlayerId, {wrap, Fun}).
+    gen_server:cast(player_sup:get_pid(PlayerId), {wrap, Fun}).
 
 stop(Pid) ->
     gen_server:cast(Pid, stop).
@@ -77,8 +78,8 @@ stop(Pid) ->
 
 init([PlayerId, Socket]) ->
     %% error_logger:info_msg("player,init: ~p,~p~n", [PlayerId, Socket]),
-    %% put(socket, Socket),
-    {ok, #state{player_id=PlayerId, socket=Socket}}.
+    erl_timer_task:add_self(?SAVE_TIME, self(), save_all),
+    {ok, #state{uuid=PlayerId, socket=Socket}}.
 
 handle_call({wrap, Fun}, _From, State) ->
     Result = Fun(),
@@ -97,24 +98,26 @@ handle_cast({proxy, Module, Fun, Args}, State) ->
     {noreply, State};
 handle_cast({account_enter, Term, Socket}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{account_enter, Term, Socket}]),
-    put(socket, Socket),
+    NewState = State#state{socket = Socket},
+    put(state_record, NewState),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    Data = erlang:apply(Module, Fun, [State#state.player_id, {}]),
+    Data = erlang:apply(Module, Fun, [State#state.uuid, {}]),
     Bin = trans_data:encode(Data),
     gen_tcp:send(Socket, Bin),
-    {noreply, State#state{socket = Socket}};
+    {noreply, NewState};
 handle_cast({new_player, {Term, Account, Passwd}, Socket}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{new_player, Account}]),
-    put(socket, Socket),
+    NewState = State#state{socket = Socket},
+    put(state_record, NewState),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    Data = erlang:apply(Module, Fun, [State#state.player_id, {Account, Passwd}]),
+    Data = erlang:apply(Module, Fun, [State#state.uuid, {Account, Passwd}]),
     Bin = trans_data:encode(Data),
     gen_tcp:send(Socket, Bin),
-    {noreply, State#state{socket = Socket}};
+    {noreply, NewState};
 handle_cast({message, {Term, Data}}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{Term, Data}]),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    ResData = erlang:apply(Module, Fun, [State#state.player_id, Data]),
+    ResData = erlang:apply(Module, Fun, [State#state.uuid, Data]),
     Bin = trans_data:encode(ResData),
     gen_tcp:send(State#state.socket, Bin),
     {noreply, State};
@@ -128,17 +131,21 @@ handle_cast({send, Data}, State) ->
     {noreply, State};
 handle_cast(stop, State) ->
     util_model:save_all(),
-    player_sup:offline(State#state.player_id),
+    player_sup:offline(State#state.uuid),
     erase(socket),
     {stop, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_info(save_all, State) ->
+    util_model:save_all(),
+    erl_timer_task:add_self(?SAVE_TIME, self(), save_all),
+    {noreply, State};
 handle_info(Info, State) ->
     error_logger:info_msg("Player dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
-terminate(Reason, _State=#state{player_id=PlayerId, socket=Socket}) ->
+terminate(Reason, _State=#state{uuid=PlayerId, socket=Socket}) ->
     gen_tcp:close(Socket),
     util_model:save_all(),
     error_logger:info_msg("Player: ~p, Terminate With Reason: ~p~n", [PlayerId, Reason]),
@@ -151,8 +158,8 @@ code_change(_OldVsn, State, _Extra) ->
 %%% private api
 %%%===================================================================
 ownthread(PlayerId) ->
-    Uuid = user_model:get_player_id(),
-    if 
-        Uuid =:= PlayerId -> true;
-        true -> false
+    case get(state_record) of 
+        undefined -> false;
+        State when State#state.uuid =:= PlayerId -> true;
+        _ -> false
     end.

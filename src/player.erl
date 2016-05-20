@@ -40,7 +40,9 @@ send_data(Data) ->
     Socket = get(socket),
     if 
         Socket =:= undefined -> ok;
-        true -> gen_tcp:send(Socket, Data)
+        true ->
+            Bin = trans_data:encode(Data), 
+            gen_tcp:send(Socket, Bin)
     end.
 
 send_data(PlayerId, Data) ->
@@ -75,7 +77,7 @@ stop(Pid) ->
 
 init([PlayerId, Socket]) ->
     %% error_logger:info_msg("player,init: ~p,~p~n", [PlayerId, Socket]),
-    put(socket, Socket),
+    %% put(socket, Socket),
     {ok, #state{player_id=PlayerId, socket=Socket}}.
 
 handle_call({wrap, Fun}, _From, State) ->
@@ -97,27 +99,35 @@ handle_cast({account_enter, Term, Socket}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{account_enter, Term, Socket}]),
     put(socket, Socket),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    erlang:apply(Module, Fun, [State#state.player_id, {}]),
+    Data = erlang:apply(Module, Fun, [State#state.player_id, {}]),
+    Bin = trans_data:encode(Data),
+    gen_tcp:send(Socket, Bin),
     {noreply, State#state{socket = Socket}};
 handle_cast({new_player, {Term, Account, Passwd}, Socket}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{new_player, Account}]),
     put(socket, Socket),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    erlang:apply(Module, Fun, [State#state.player_id, {Account, Passwd}]),
+    Data = erlang:apply(Module, Fun, [State#state.player_id, {Account, Passwd}]),
+    Bin = trans_data:encode(Data),
+    gen_tcp:send(Socket, Bin),
     {noreply, State#state{socket = Socket}};
 handle_cast({message, {Term, Data}}, State) ->
     error_logger:info_msg("player,handle_cast: ~p~n", [{Term, Data}]),
     {Term, Module, Fun} = lists:keyfind(Term, 1, ?PROTOCONTROLLER),
-    erlang:apply(Module, Fun, [State#state.player_id, Data]),
+    ResData = erlang:apply(Module, Fun, [State#state.player_id, Data]),
+    Bin = trans_data:encode(ResData),
+    gen_tcp:send(State#state.socket, Bin),
     {noreply, State};
 handle_cast({send, Data}, State) ->
     if 
         State#state.socket =:= undefined -> ok;
-        true -> gen_tcp:send(State#state.socket, Data)
+        true ->
+            Bin = trans_data:encode(Data),  
+            gen_tcp:send(State#state.socket, Bin)
     end,
     {noreply, State};
 handle_cast(stop, State) ->
-    save_all(),
+    util_model:save_all(),
     player_sup:offline(State#state.player_id),
     erase(socket),
     {stop, State};
@@ -130,7 +140,7 @@ handle_info(Info, State) ->
 
 terminate(Reason, _State=#state{player_id=PlayerId, socket=Socket}) ->
     gen_tcp:close(Socket),
-    save_all(),
+    util_model:save_all(),
     error_logger:info_msg("Player: ~p, Terminate With Reason: ~p~n", [PlayerId, Reason]),
     ok.
 
@@ -141,10 +151,8 @@ code_change(_OldVsn, State, _Extra) ->
 %%% private api
 %%%===================================================================
 ownthread(PlayerId) ->
-    Uuid = util_model:get_player_id(),
+    Uuid = user_model:get_player_id(),
     if 
         Uuid =:= PlayerId -> true;
         true -> false
     end.
-
-save_all() -> util_model:save_all().

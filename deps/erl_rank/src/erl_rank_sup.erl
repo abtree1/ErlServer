@@ -1,4 +1,4 @@
--module(erl_server_sup).
+-module(erl_rank_sup).
 
 -behaviour(supervisor).
 
@@ -15,7 +15,7 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
--spec start_link() -> {ok, pid()}.
+
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
@@ -24,10 +24,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-	ErlServerSpec = ?CHILD(erl_server, erl_server, worker, []),
-	ErlConnSupSpec = ?CHILD(erl_conn_sup, erl_conn_sup, supervisor, []),
-	PlayerSupSpec = ?CHILD(player_sup, player_sup, supervisor, []),
-	AllianceSupSpec = ?CHILD(alliance_sup, alliance_sup, supervisor, []),
-    Specs = [ErlServerSpec, ErlConnSupSpec, PlayerSupSpec, AllianceSupSpec],
-    {ok, { {one_for_one, 10, 10}, Specs} }.
+	ErlRankSpec = ?CHILD(erl_rank, erl_rank, worker, []),
+	Specs = [ErlRankSpec],
+    {ok, { {one_for_one, 5, 10}, Specs} }.
 

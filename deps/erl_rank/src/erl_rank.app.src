@@ -1,0 +1,12 @@
+{application, erl_rank,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { erl_rank, []}},
+  {env, []}
+ ]}.

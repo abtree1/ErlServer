@@ -47,6 +47,9 @@ add(Time, Key, M, F, A) ->
 	T = Now + Time,
 	erl_counter:set_timeout({timertask_desk, Key}, T, {T, Tref, M, F, A}).
 
+update(Time, Key, M, F, A) -> 
+	add(Time, Key, M, F, A).
+
 %% 不可恢复型 timertask
 add(Time, Key, Pid, Msg) ->
 	delete(Key), 
@@ -55,15 +58,18 @@ add(Time, Key, Pid, Msg) ->
 	T = Now + Time,
 	erl_counter:set_timeout({timertask, Key}, T, {T, Tref}).
 
-update(Time, Key, M, F, A) -> 
-	add(Time, Key, M, F, A).
-
 update(Time, Key, Pid, Msg) -> 
 	add(Time, Key, Pid, Msg).
 
 lookup(Key) ->
 	case erl_counter:get_timeout({timertask, Key}) of 
-		undefined -> 0;
+		undefined -> 
+			case erl_counter:get_timeout({timertask_desk, Key}) of
+				undefined -> 0;
+				{Time, _Ref} ->
+					Now = time_utils:now(),	
+					Time - Now
+			end;
 		{Time, _Ref} ->
 			Now = time_utils:now(),
 			Time - Now
@@ -71,6 +77,10 @@ lookup(Key) ->
 	
 delete(Key) -> 
 	case erl_counter:get_timeout({timertask, Key}) of 
-		undefined -> ok;
+		undefined -> 
+			case erl_counter:get_timeout({timertask_desk, Key}) of 
+				undefined -> ok;
+				{_, Ref} ->	timer:cancel(Ref)
+			end;	
 		{_, Ref} -> timer:cancel(Ref)
 	end.

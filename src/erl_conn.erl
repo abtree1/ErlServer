@@ -106,7 +106,7 @@ account_enter(Socket, {Term, {Account, Passwd}}, Pid) ->
     case Res of 
         [[_Uuid, _Account, LoadPasswd]] when MD5Pwd =/= LoadPasswd ->
             %% error_logger:info_msg("XXXXXXXXXX:~p =/= ~p~n", [MD5Pwd, LoadPasswd]),
-            send_data(Socket, {account_enter_ret, {<<"error_login_passwd">>}}),
+            send_data(Socket, {fail, {<<"error_login_passwd">>}}),
             Pid;
         [[Uuid, _Account, _LoadPasswd]] when Pid =:= undefined -> 
             Nid = case player_sup:get_pid(Uuid) of 

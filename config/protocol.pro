@@ -1,25 +1,15 @@
+############### request #################
 request_account_enter:1
     account:string
     password:string
-request_user_infos:
+request_insert_name:
+    name:string
+request_create_alliance:
+    alliance_name:string
+############### response #################
+ok:2
     #empty
-request_item_infos:
-    #empty
-request_remote_user_info:
-    uuid:string
-account_enter_ret:2
+fail:3
     error_code:string
-user:
-    uuid:string
-    name:string
-    level:integer
-users:
-    user:array-user
-item:
-    uuid:string
-    name:string
-    amount:integer
-items:
-    user:user
-    other:string
-    item:array-item
+new_user_name:
+    #empty

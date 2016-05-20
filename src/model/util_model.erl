@@ -3,22 +3,20 @@
 -include("../../include/auto/db.hrl").
 -include("../../include/properties.hrl").
 
--export([get_player_id/0,
-		create/2,
+-export([create/2,
 		find_count/1, 
 		find_all/1,
+		find/1,
 		find/2,
+		filter/3,
 		update/2,
 		delete/2,
-		load_all/1,
+		load/3,
 		save_all/0]).
-
-get_player_id() ->
-	[{Uuid, _User, _State}] = get(user),
-	Uuid.
 
 create(Term, Record) -> 
 	Uuid = record_mapper:get_field(Record, uuid),
+	update_load_models(Term),
 	case get(Term) of 
 		undefined -> 
 			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
@@ -52,6 +50,23 @@ find_all(Term) ->
 			end, [], Records)
 	end.
 
+filter(Table, Field, Value) ->
+	Sql = sql_format:find_by(Table, Field, Value),
+	Records = erl_db:load(Sql, Table, record_mapper:get_mapping(Table)),
+	case Records of 
+		[] -> ok;
+		_ -> fail
+	end.
+
+find(Term) ->
+	case get(Term) of 
+		undefined -> undefined;
+		[] -> undefined;
+		Records ->
+			[{_Key, Record, _State}|_] = Records,
+			Record
+	end.
+
 find(Term, Key) ->
 	case get(Term) of 
 		undefined -> undefined;
@@ -65,6 +80,7 @@ find(Term, Key) ->
 
 update(Term, Record) ->
 	Uuid = record_mapper:get_field(Record, uuid),
+	update_load_models(Term),
 	case get(Term) of 
 		undefined -> 
 			put(Term, [{Uuid, Record, ?STATE_MODEL_CREATE}]),
@@ -100,45 +116,60 @@ delete(Term, Key) ->
 			end
 	end.
 
-load_all(PlayerId) ->
-	lists:foreach(fun(Table) ->
-		Field = case Table of 
-			user -> uuid;
-			_ -> user_id
-		end,
-
-  		Sql = sql_format:find_by(Table, Field, PlayerId),
-		Records = erl_db:load(Sql, Table, record_mapper:get_mapping(Table)),
-		%% error_logger:info_msg("XXXXXXXXXX:~p~n", [Records]),
-		Res = lists:foldl(fun(Record, AccIn) ->
+load(Table, Field, Value) ->
+	Sql = sql_format:find_by(Table, Field, Value),
+	Records = erl_db:load(Sql, Table, record_mapper:get_mapping(Table)),
+	Res = lists:foldl(fun(Record, AccIn) ->
 			Uuid = record_mapper:get_field(Record, uuid),
 			[{Uuid, Record, ?STATE_MODEL_LOAD}|AccIn]
-		end, [], Records),
-		put(Table, Res)
-	end, ?DB_TABLE_NAMES). 
+	end, [], Records),
+	put(Table, Res). 
 
 save_all() ->
-	lists:foreach(fun(Table) ->
-		case get(Table) of
-			undefined -> ok; 
-			[] -> ok;
-			Records ->
-				Res = lists:foldl(fun({Uuid, Record, State}, AccIn) ->
-					if 
-						State =:= ?STATE_MODEL_CREATE ->
-							Sql = sql_format:create(Record),
-							erl_db:execute(Sql),
-							[{Uuid, Record, ?STATE_MODEL_LOAD}|AccIn];
-						State =:= ?STATE_MODEL_LOAD ->
-							Sql = sql_format:update_by(uuid, Uuid, Record),
-							erl_db:execute(Sql),
-							[{Uuid, Record, State}|AccIn];
-						State =:= ?STATE_MODEL_DELETE ->
-							Sql = sql_format:delete_by(Table, uuid, Uuid),
-							erl_db:execute(Sql),
-							AccIn
-					end
-				end, [], Records),
-				put(Table, Res)
-		end
-	end, ?DB_TABLE_NAMES). 
+	case get(load_models) of
+		undefined -> fail;
+		[] -> fail;
+		List ->
+			lists:foreach(fun(Table) ->
+				execute_save(Table)
+			end, List)
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% private
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+update_load_models(Table) ->
+	case get(load_models) of
+		undefined -> put(load_models, [Table]);
+		[] -> put(load_models, [Table]);
+		List ->
+			case lists:member(Table) of 
+				false -> put(load_models, [Table|List]);
+				true -> ok 
+			end
+	end.
+
+execute_save(Table) ->
+	case get(Table) of
+		undefined -> ok; 
+		[] -> ok;
+		Records ->
+			Res = lists:foldl(fun({Uuid, Record, State}, AccIn) ->
+				if 
+					State =:= ?STATE_MODEL_CREATE ->
+						Sql = sql_format:create(Record),
+						erl_db:execute(Sql),
+						[{Uuid, Record, ?STATE_MODEL_LOAD}|AccIn];
+					State =:= ?STATE_MODEL_LOAD ->
+						Sql = sql_format:update_by(uuid, Uuid, Record),
+						erl_db:execute(Sql),
+						[{Uuid, Record, State}|AccIn];
+					State =:= ?STATE_MODEL_DELETE ->
+						Sql = sql_format:delete_by(Table, uuid, Uuid),
+						erl_db:execute(Sql),
+						AccIn
+				end
+			end, [], Records),
+			put(Table, Res)
+	end.
+

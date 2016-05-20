@@ -1,1 +1,0 @@
-erl -pa ebin deps/*/ebin -config erl_server.config

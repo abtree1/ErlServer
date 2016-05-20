@@ -1,9 +1,7 @@
 #request
 request_account_enter:
 	user_controller:login
-request_user_infos:
-	user_controller:infos
-request_remote_user_info:
-	user_controller:remote_info
-request_item_infos:
-	item_controller:infos
+request_insert_name:
+	user_controller:change_name
+request_create_alliance:
+	user_controller:create_alliance

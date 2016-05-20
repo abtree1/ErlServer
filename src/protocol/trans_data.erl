@@ -5,6 +5,8 @@
 
 -export([encode/1, decode/1]).
 
+encode({Term}) ->
+	encode({Term, {}});
 encode({Term, Data}) ->
 	{_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
     {_, Id} = lists:keyfind(Term, 1, ?PROTONAMEENUM),

@@ -42,8 +42,10 @@ handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
 handle_cast(stop, State) ->
+    player_sup:stop(),
+    alliance_sup:stop(),
     %% error_logger:info_msg("cast stop"),
-    {noreply, State};
+    {stop, shutdown, State};
 handle_cast(_Request, State) ->
     {noreply, State}.
 

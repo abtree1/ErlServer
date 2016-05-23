@@ -5,3 +5,5 @@ request_insert_name:
 	user_controller:change_name
 request_create_alliance:
 	user_controller:create_alliance
+request_alliance_info:
+	alliance_controller:info

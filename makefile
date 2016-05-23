@@ -1,4 +1,4 @@
-.PHONY: all config start console clean db proto
+.PHONY: all config start console clean db proto test
 
 all:
 	./rebar get-deps
@@ -31,6 +31,9 @@ proto:
 		-config erl_server.config \
 		-s life_cycle protocol
 	./rebar compile
+
+test:
+	./rebar compile eunit skip_deps=true
 
 clean:
 	./rebar clean

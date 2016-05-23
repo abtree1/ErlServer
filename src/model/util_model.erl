@@ -100,7 +100,8 @@ update(Table, Record) ->
 					put(Table, [{Uuid, Record, ?STATE_MODEL_CREATE}|Records]), 
 					Record;
 				_ -> 
-					lists:keyreplace(Uuid, 1, Records, {Uuid, Record, ?STATE_MODEL_LOAD}),
+					NewRecords = lists:keyreplace(Uuid, 1, Records, {Uuid, Record, ?STATE_MODEL_LOAD}),
+					put(Table, NewRecords),
 					Record
 			end
 	end.
@@ -189,7 +190,7 @@ sure_load_data(Table) ->
 				{_, Uuid} -> Uuid
 			end, 
 			Module = list_to_atom(atom_to_list(Table) ++ "_model"),
-			Module:load_data(PlayerID);
+			Module:load(PlayerID);
 		true -> ok
 	end.
 

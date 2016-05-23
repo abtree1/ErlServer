@@ -2,8 +2,11 @@
 
 -include("../../include/auto/db.hrl").
 
--export([create/1]).
--export([get_player_id/0,
+-serialize([officers, elites, members]).
+
+-export([create/1,
+		info/0]).
+-export([get_alliance_id/0,
 		load/1,
 		lookup/0,
 		update/1]).
@@ -20,7 +23,15 @@ create({AllianceId, AllianceName, PlayerId}) ->
 	util_model:create(alliance, Alliance),
 	util_model:save_all().
 
-get_player_id() ->
+info() ->
+	Alliance = lookup(),
+	{alliance, {Alliance#alliance.uuid,
+			   Alliance#alliance.name,
+			   Alliance#alliance.level,
+			   Alliance#alliance.coins,
+			   Alliance#alliance.president}}.
+
+get_alliance_id() ->
 	case get(alliance) of
 		undefined -> undefined; 
 		[{Uuid, _Alliance, _State}] -> Uuid

@@ -6,6 +6,8 @@ request_insert_name:
     name:string
 request_create_alliance:
     alliance_name:string
+request_alliance_info:
+    #empty
 ############### response #################
 ok:2
     #empty
@@ -13,3 +15,15 @@ fail:3
     error_code:string
 new_user_name:
     #empty
+user:4
+	uuid:string
+	name:string
+	level:integer
+	account:string
+	alliance_id:string
+alliance:
+    uuid:string
+    name:string
+    level:short
+    coins:integer
+    president:string

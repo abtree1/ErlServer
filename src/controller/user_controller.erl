@@ -4,12 +4,11 @@
 		change_name/2,
 		create_alliance/2]).
 
-login(PlayerId, {}) ->  %% old player
-	user_model:load_player(PlayerId),
-	{new_user_name};
+login(_PlayerId, {}) ->  %% old player
+	user_model:info();
 login(PlayerId, {Account, Passwd}) -> %% new player
 	user_model:create_player(PlayerId, {Account, Passwd}),
-	{ok}.
+	{new_user_name}.
 
 change_name(_PlayerId, {Name}) ->
 	case erl_config:has_dirty_word(Name) of
@@ -19,7 +18,7 @@ change_name(_PlayerId, {Name}) ->
 				fail -> {fail, {<<"error_username_used">>}};
 				_ ->
 					user_model:change_name(Name),
-					{ok}
+					user_model:info()
 			end
 	end.
 
@@ -36,6 +35,7 @@ create_alliance(PlayerId, {AllianceName}) ->
 							AllianceId = uuid_factory:get_uuid(),
 							alliance_sup:start_child(AllianceId),
 							alliance:async_proxy(AllianceId, alliance_model, create, [{AllianceId, AllianceName, PlayerId}]),
+							user_model:create_alliance(AllianceId),
 							{ok}
 					end
 			end

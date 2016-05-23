@@ -39,8 +39,8 @@ wrap(AllianceId, Fun) ->
 async_wrap(AllianceId, Fun) ->
     gen_server:cast(alliance_sup:get_pid(AllianceId), {wrap, Fun}).
 
-stop(AllianceId) ->
-    gen_server:cast(alliance_sup:get_pid(AllianceId), stop).
+stop(Pid) ->
+    gen_server:cast(Pid, stop).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -68,7 +68,7 @@ handle_cast({proxy, Module, Fun, Args}, State) ->
     {noreply, State};
 handle_cast(stop, State) ->
     util_model:save_all(),
-    {stop, State};
+    {stop, {shutdown, data_persisted}, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -80,8 +80,11 @@ handle_info(Info, State) ->
     error_logger:info_msg("Alliance dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
-terminate(_Reason, _State) ->
-    util_model:save_all(),
+terminate(Reason, _State) ->
+    if 
+        Reason =:= {shutdown, data_persisted} -> ok;
+        true -> util_model:save_all()
+    end,
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

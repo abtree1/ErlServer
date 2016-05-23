@@ -1,2 +1,2 @@
--define(PROTOIDENUM, [{1, request_account_enter}, {6, request_insert_name}, {5, request_create_alliance}, {2, ok}, {3, fail}, {4, new_user_name}]). 
--define(PROTONAMEENUM, [{request_account_enter, 1}, {request_insert_name, 6}, {request_create_alliance, 5}, {ok, 2}, {fail, 3}, {new_user_name, 4}]). 
+-define(PROTOIDENUM, [{1, request_account_enter}, {9, request_insert_name}, {8, request_create_alliance}, {7, request_alliance_info}, {2, ok}, {3, fail}, {6, new_user_name}, {4, user}, {5, alliance}]). 
+-define(PROTONAMEENUM, [{request_account_enter, 1}, {request_insert_name, 9}, {request_create_alliance, 8}, {request_alliance_info, 7}, {ok, 2}, {fail, 3}, {new_user_name, 6}, {user, 4}, {alliance, 5}]). 

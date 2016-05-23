@@ -133,7 +133,7 @@ handle_cast(stop, State) ->
     util_model:save_all(),
     player_sup:offline(State#state.uuid),
     erase(socket),
-    {stop, State};
+    {stop, {shutdown, data_persisted}, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -147,7 +147,10 @@ handle_info(Info, State) ->
 
 terminate(Reason, _State=#state{uuid=PlayerId, socket=Socket}) ->
     gen_tcp:close(Socket),
-    util_model:save_all(),
+    if
+        Reason =:= {shutdown, data_persisted} -> ok;
+        true -> util_model:save_all()
+    end,
     error_logger:info_msg("Player: ~p, Terminate With Reason: ~p~n", [PlayerId, Reason]),
     ok.
 

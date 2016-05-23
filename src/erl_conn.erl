@@ -50,12 +50,11 @@ handle_cast({tcp, do_listen}, State) ->
 handle_cast({tcp, do_recv}, State) ->
     on_recv(State#state.socket, undefined),
     gen_tcp:close(State#state.socket),
-    {stop, State};
+    {stop, shutdown, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info(Info, State) ->
-    error_logger:info_msg("Player dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
 terminate(Reason, _State=#state{socket=Socket}) ->
@@ -71,14 +70,12 @@ code_change(_OldVsn, State, _Extra) ->
 on_accept(LSock) ->
     {ok, Sock} = gen_tcp:accept(LSock),
     {ok, Pid} = erl_conn_sup:start_child([Sock]),
-    %% error_logger:info_msg("erl_conn_sup:accept: ~p~n", [Pid]),
     erl_conn:do_recv(Pid),
     on_accept(LSock).
 
 on_recv(Socket, Pid) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Bin} ->
-            %% error_logger:info_msg("XXXXXXXXXX:~p~n", [Bin]),
             case trans_data:decode(Bin) of 
                 false -> {ok, closed};
                 {Term, Data} ->
@@ -102,10 +99,8 @@ account_enter(Socket, {Term, {Account, Passwd}}, Pid) ->
     Sql = sql_format:account_enter(Account),
     MD5Pwd = md5:md5(Passwd),
     Res = erl_db:select(Sql),
-    %% error_logger:info_msg("XXXXXXXXXX:~p~n", [Res]),
     case Res of 
         [[_Uuid, _Account, LoadPasswd]] when MD5Pwd =/= LoadPasswd ->
-            %% error_logger:info_msg("XXXXXXXXXX:~p =/= ~p~n", [MD5Pwd, LoadPasswd]),
             send_data(Socket, {fail, {<<"error_login_passwd">>}}),
             Pid;
         [[Uuid, _Account, _LoadPasswd]] when Pid =:= undefined -> 

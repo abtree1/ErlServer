@@ -1,1 +1,1 @@
--define(PROTORULE, [{request_account_enter, {string,string}},{request_insert_name, {string}},{request_create_alliance, {string}},{ok, {}},{fail, {string}},{new_user_name, {}}]). 
+-define(PROTORULE, [{request_account_enter, {string,string}},{request_insert_name, {string}},{request_create_alliance, {string}},{request_alliance_info, {}},{ok, {}},{fail, {string}},{new_user_name, {}},{user, {string,string,integer,string,string}},{alliance, {string,string,short,integer,string}}]). 

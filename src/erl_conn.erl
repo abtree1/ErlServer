@@ -46,7 +46,7 @@ handle_cast({tcp, do_listen}, State) ->
     {ok, Sock} = gen_tcp:listen(?TCP_LISTEN_PORT, [binary, {packet, 1}, {active, false}]),
     on_accept(Sock),
     gen_tcp:close(State#state.socket),
-    {stop, State#state{socket=Sock}};
+    {stop, shutdown, State#state{socket=Sock}};
 handle_cast({tcp, do_recv}, State) ->
     on_recv(State#state.socket, undefined),
     gen_tcp:close(State#state.socket),
@@ -54,11 +54,11 @@ handle_cast({tcp, do_recv}, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info(Info, State) ->
+handle_info(_Info, State) ->
     {noreply, State}.
 
 terminate(Reason, _State=#state{socket=Socket}) ->
-    error_logger:info_msg("Player: ~p, Terminate With Reason: ~p~n", [Socket, Reason]),
+    error_logger:info_msg("Player Conn: ~p, Terminate With Reason: ~p~n", [Socket, Reason]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -91,7 +91,7 @@ on_recv(Socket, Pid) ->
             end;
         {error, closed} ->
             error_logger:info_msg("erl_conn:tcp, on_recv: stop"),
-            player:stop(Pid),
+            %% player:stop(Pid),
             {ok, closed}
     end.
 

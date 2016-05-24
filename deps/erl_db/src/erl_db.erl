@@ -15,6 +15,7 @@
 
 -export([migrate/0,
         execute/1,
+        execute_sync/1,
         select/1,
         load/2,
         load/3]).
@@ -39,6 +40,9 @@ migrate() ->
 execute(Sql) -> 
     gen_server:cast(?SERVER, {execute, Sql}).
 
+execute_sync(Sql) ->
+    gen_server:call(?SERVER, {execute, Sql}).
+
 %% execute sql with return
 select(Sql) -> 
     { _, _, _, Result, _ } = emysql:execute(?DB_POOL, Sql),
@@ -59,6 +63,9 @@ init([]) ->
     init_db_pool(),
     {ok, #state{}}.
 
+handle_call({execute, Sql}, _From, State) ->
+    emysql:execute(?DB_POOL, Sql),
+    {reply, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 

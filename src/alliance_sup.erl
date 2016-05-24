@@ -12,19 +12,15 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 start_child(Uuid) ->
-    case get_pid(Uuid) of
+    case lookup({alliance, Uuid}) of 
         false ->
             {ok, Pid} = supervisor:start_child(?MODULE, [Uuid]),
             insert({alliance, Uuid}, Pid),
             Pid;
-        Pid -> Pid 
+        Pid -> Pid
     end.
 
-get_pid(Uuid) ->
-    case lookup({alliance, Uuid}) of
-        false -> false;
-       	Pid -> Pid 
-    end.
+get_pid(Uuid) -> start_child(Uuid).
 
 offline(Uuid) ->
     delete({alliance, Uuid}).

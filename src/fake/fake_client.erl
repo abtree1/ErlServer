@@ -13,6 +13,8 @@ connect() ->
                                  [binary, {packet, 1}, {active, false}]),
     Sock.
 
+send(Sock, {Term}) when is_atom(Term) ->
+	send(Sock, {Term, {}});
 send(Sock, {Term, Data}) ->
 	{_, Rules} = lists:keyfind(Term, 1, ?PROTORULE),
 	{_, Id} = lists:keyfind(Term, 1, ?PROTONAMEENUM),

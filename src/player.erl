@@ -70,7 +70,7 @@ async_wrap(PlayerId, Fun) ->
     gen_server:cast(player_sup:get_pid(PlayerId), {wrap, Fun}).
 
 stop(Pid) ->
-    gen_server:cast(Pid, stop).
+    gen_server:call(Pid, stop).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -87,6 +87,12 @@ handle_call({wrap, Fun}, _From, State) ->
 handle_call({proxy, Module, Fun, Args}, _From, State) ->
     Result = erlang:apply(Module, Fun, Args),
     {reply, Result, State};
+handle_call(stop, _From, State) ->
+    erase(state_record),
+    gen_tcp:close(State#state.socket),
+    util_model:save_all_sync(),
+    player_sup:offline(State#state.uuid),
+    {stop, {shutdown, data_persisted}, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -129,11 +135,6 @@ handle_cast({send, Data}, State) ->
             gen_tcp:send(State#state.socket, Bin)
     end,
     {noreply, State};
-handle_cast(stop, State) ->
-    util_model:save_all(),
-    player_sup:offline(State#state.uuid),
-    erase(socket),
-    {stop, {shutdown, data_persisted}, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -149,7 +150,7 @@ terminate(Reason, _State=#state{uuid=PlayerId, socket=Socket}) ->
     gen_tcp:close(Socket),
     if
         Reason =:= {shutdown, data_persisted} -> ok;
-        true -> util_model:save_all()
+        true -> util_model:save_all_sync()
     end,
     error_logger:info_msg("Player: ~p, Terminate With Reason: ~p~n", [PlayerId, Reason]),
     ok.

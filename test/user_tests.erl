@@ -2,7 +2,7 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-user_test_() ->
+user_test() ->
 	erl_server:start(),
 	Sock = fake_client:connect(),
 	Res1 = fake_client:send(Sock, {request_account_enter, {<<"aaa">>, <<"111111">>}}),

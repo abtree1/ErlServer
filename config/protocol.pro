@@ -27,3 +27,6 @@ alliance:
     level:short
     coins:integer
     president:string
+    officers:array-string
+    elites:array-string
+    members:array-string

@@ -21,7 +21,8 @@ create({AllianceId, AllianceName, PlayerId}) ->
 						elites = [],
 						members = [PlayerId]},
 	util_model:create(alliance, Alliance),
-	util_model:save_all().
+	util_model:save_all(),
+	info().
 
 info() ->
 	Alliance = lookup(),
@@ -29,7 +30,10 @@ info() ->
 			   Alliance#alliance.name,
 			   Alliance#alliance.level,
 			   Alliance#alliance.coins,
-			   Alliance#alliance.president}}.
+			   Alliance#alliance.president,
+			   Alliance#alliance.officers,
+			   Alliance#alliance.elites,
+			   Alliance#alliance.members}}.
 
 get_alliance_id() ->
 	case get(alliance) of

@@ -40,7 +40,7 @@ async_wrap(AllianceId, Fun) ->
     gen_server:cast(alliance_sup:get_pid(AllianceId), {wrap, Fun}).
 
 stop(Pid) ->
-    gen_server:cast(Pid, stop).
+    gen_server:call(Pid, stop).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -57,6 +57,9 @@ handle_call({wrap, Fun}, _From, State) ->
 handle_call({proxy, Module, Fun, Args}, _From, State) ->
     Result = erlang:apply(Module, Fun, Args),
     {reply, Result, State};
+handle_call(stop, _From, State) ->
+    util_model:save_all_sync(),
+    {stop, {shutdown, data_persisted}, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -66,9 +69,6 @@ handle_cast({wrap, Fun}, State) ->
 handle_cast({proxy, Module, Fun, Args}, State) ->
     erlang:apply(Module, Fun, Args),
     {noreply, State};
-handle_cast(stop, State) ->
-    util_model:save_all(),
-    {stop, {shutdown, data_persisted}, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -80,11 +80,12 @@ handle_info(Info, State) ->
     error_logger:info_msg("Alliance dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
-terminate(Reason, _State) ->
+terminate(Reason, _State#state{uuid = AllianceId}) ->
     if 
         Reason =:= {shutdown, data_persisted} -> ok;
-        true -> util_model:save_all()
+        true -> util_model:save_all_sync()
     end,
+    error_logger:info_msg("alliance: ~p, Terminate With Reason: ~p~n", [AllianceId, Reason]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

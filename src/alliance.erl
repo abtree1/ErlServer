@@ -80,7 +80,7 @@ handle_info(Info, State) ->
     error_logger:info_msg("Alliance dropped handle_info: ~p~n", [Info]),
     {noreply, State}.
 
-terminate(Reason, _State#state{uuid = AllianceId}) ->
+terminate(Reason, _State = #state{uuid = AllianceId}) ->
     if 
         Reason =:= {shutdown, data_persisted} -> ok;
         true -> util_model:save_all_sync()

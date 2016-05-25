@@ -1,4 +1,4 @@
-.PHONY: all config start console clean db proto test
+.PHONY: all config start console clean db proto map test
 
 all:
 	./rebar get-deps
@@ -9,7 +9,7 @@ console:
 		-config erl_server.config \
 		-s erl_server start
 
-start: config db proto
+start: config db proto map
 	erl -pa ebin deps/*/ebin \
 		-config erl_server.config \
 		-s erl_server start
@@ -31,6 +31,11 @@ proto:
 		-config erl_server.config \
 		-s life_cycle protocol
 	./rebar compile
+
+map:
+	erl -pa ebin deps/*/ebin \
+		-config erl_server.config \
+		-s life_cycle map
 
 test:
 	./rebar compile eunit skip_deps=true

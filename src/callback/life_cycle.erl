@@ -3,6 +3,7 @@
 -export([config/0, 
 		migrate/0, 
 		protocol/0, 
+		map/0,
 		after_start/0]).
 
 config() ->
@@ -19,6 +20,11 @@ protocol() ->
 	parse_file:parse_protocol(),
 	parse_file:parse_controller(),
 	init:stop().
+
+map() ->
+	application:start(erl_config),
+	build_map:build(hexagon).
+	%% init:stop().
 
 after_start() -> 
 	erl_counter:start(),

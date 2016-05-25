@@ -1,0 +1,9 @@
+{application,erl_map,
+             [{description,[]},
+              {vsn,"1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {mod,{erl_map,[]}},
+              {env,[]},
+              {modules,[build_map,erl_map,erl_map_app,erl_map_sup,hexagon,
+                        rectangle]}]}.

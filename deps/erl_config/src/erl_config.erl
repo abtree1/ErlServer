@@ -14,6 +14,7 @@
          code_change/3]).
 
 -export([find/2,
+        all/1,
         has_dirty_word/1]).
 
 -record(state, {}).
@@ -34,6 +35,9 @@ start_link() ->
 
 find(TableName, Key) ->
     gen_server:call(?SERVER, {find, TableName, Key}).
+
+all(TableName) ->
+    gen_server:call(?SERVER, {all, TableName}).
 
 has_dirty_word(Str) ->
     NewStr = case is_binary(Str) of 
@@ -60,6 +64,14 @@ handle_call({find, TableName, Key}, _From, State) ->
                     % List1 = tuple_to_list(Tuple),
                     % list_to_tuple([TableName|List1])
             end
+    end,
+    {reply, Ret, State};
+handle_call({all, TableName}, _From, State) ->
+    %% for ets branch
+    %% Ret = case erl_config_store:lookup(TableName) of 
+    Ret = case lists:keyfind(TableName, 1, ?CONFIGMAP) of 
+        false -> [];
+        {TableName, List} -> List
     end,
     {reply, Ret, State};
 handle_call({dirty_words_filter, Str}, _From, State) ->

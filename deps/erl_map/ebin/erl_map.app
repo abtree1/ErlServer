@@ -5,5 +5,5 @@
               {applications,[kernel,stdlib]},
               {mod,{erl_map,[]}},
               {env,[]},
-              {modules,[build_map,erl_map,erl_map_app,erl_map_sup,hexagon,
-                        rectangle]}]}.
+              {modules,[build_hexagon,build_map,build_rectangle,erl_map,
+                        erl_map_app,erl_map_sup,hexagon,rectangle]}]}.

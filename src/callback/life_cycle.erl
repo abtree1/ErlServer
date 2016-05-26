@@ -23,8 +23,8 @@ protocol() ->
 
 map() ->
 	application:start(erl_config),
-	build_map:build(hexagon).
-	%% init:stop().
+	build_map:build(),
+	init:stop().
 
 after_start() -> 
 	erl_counter:start(),

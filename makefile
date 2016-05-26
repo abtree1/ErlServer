@@ -36,6 +36,7 @@ map:
 	erl -pa ebin deps/*/ebin \
 		-config erl_server.config \
 		-s life_cycle map
+	./rebar compile
 
 test:
 	./rebar compile eunit skip_deps=true

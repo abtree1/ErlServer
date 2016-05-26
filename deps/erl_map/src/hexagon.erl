@@ -78,34 +78,25 @@ is_validity({X, Y}) ->
 count_space({X, Y}, {OtherX, OtherY}) ->
 	SpanX = erlang:abs(X - OtherX),
 	SpanY = erlang:abs(Y - OtherY),
-	(SpanX + SpanY div 2) div 2.
+	Span = SpanX + SpanY div 2,
+	if
+		X =:= OtherX -> Span;
+		true -> Span div 2
+	end.
 
 get_path(Point, OtherPoint) ->
-	get_path(Point, OtherPoint, [], 0).
+	get_path(Point, OtherPoint, []).
 
-get_path(Point, Point, Path, _N) -> [Point|Path];
-get_path({X, Y}, {OtherX, OtherY}, Path, N) -> 
+get_path(Point, Point, Path) -> [Point|Path];
+get_path({X, Y}, {OtherX, OtherY}, Path) -> 
 	NewPath = [{OtherX, OtherY}|Path],
 	if 
 		Y =:= OtherY ->
 			NewX = path_go_y(X, OtherX),
-			get_path({X, Y}, {NewX, OtherY}, NewPath, N);
+			get_path({X, Y}, {NewX, OtherY}, NewPath);
 		true ->
-			case is_line({X, Y}, {OtherX, OtherY}) of
-				true ->
-					NewPoint = path_go_x({X, Y}, {OtherX, OtherY}),
-					get_path({X, Y}, NewPoint, NewPath, N);
-				false ->
-					Flag = N rem 2,
-					if
-						Flag =:= 0 ->
-							NewPoint = path_go_x({X, Y}, {OtherX, OtherY}),
-							get_path({X, Y}, NewPoint, NewPath, N + 1);
-						Flag =:= 1 ->
-							NewX = path_go_y(X, OtherX),
-							get_path({X, Y}, {NewX, OtherY}, NewPath, N + 1)
-					end
-			end
+			NewPoint = path_go_x({X, Y}, {OtherX, OtherY}),
+			get_path({X, Y}, NewPoint, NewPath)
 	end. 
 
 path_go_y(X, OtherX) ->

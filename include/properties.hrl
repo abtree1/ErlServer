@@ -27,7 +27,7 @@
 -define(PROTOCOL_CONTROLLER, "include/auto/proto_controller.hrl").
 
 -define(MAP_INCLUDE_DATA, "include/auto/map_data.hrl").
-% 六边形的每两个坐标，取一个，故坐标比四边形大一倍
+% 六边形坐标取双值，故坐标比四边形大一倍
 -define(MAP_TYPE, hexagon).
 -define(HEX_MAX_SIZE, 2000). 
 -define(HEX_GROUP_SIZE, 20).

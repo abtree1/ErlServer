@@ -5,6 +5,7 @@
 
 -export([get_cell/2,
 		get_neighbor/1,
+		get_neighbor/2,
 		is_validity/1,
 		is_neighbor/2,
 		count_space/2,
@@ -29,6 +30,22 @@ get_cell(X, Y) ->
 
 get_neighbor({X, Y}) ->
 	List = [{X-1, Y}, {X + 1, Y}, {X, Y - 1}, {X, Y + 1}],
+	filter_points(List).
+
+get_neighbor(Point, 1) -> get_neighbor(Point);
+get_neighbor({X, Y}, L) ->
+	Point1 = {X - L, Y},
+	Point2 = {X, Y + L},
+	Point3 = {X + L, Y},
+	Point4 = {X, Y - L},
+	Path1 = diagonal_path(Point1, Point2),
+	Path2 = diagonal_path(Point2, Point3),
+	Path3 = diagonal_path(Point3, Point4),
+	Path4 = diagonal_path(Point4, Point1),
+	Path = Path1 ++ Path2 ++ Path3 ++ Path4,
+	filter_points(Path).
+
+filter_points(List) ->
 	lists:foldl(fun(Point, AccIn) ->
 		case is_validity(Point) of 
 			false -> AccIn;
@@ -36,12 +53,27 @@ get_neighbor({X, Y}) ->
 		end
 	end, [], List).
 
+diagonal_path(Point1, Point2) ->
+	diagonal_path(Point1, Point2, []).
+
+diagonal_path(Point, Point, Path) -> Path;
+diagonal_path({X, Y}, {OtherX, OtherY}, Path) ->
+	NewX = if 
+		X > OtherX -> X - 1;
+		X < OtherX -> X + 1
+	end,
+	NewY = if 
+		Y > OtherY -> Y - 1;
+		Y < OtherY -> Y + 1
+	end,
+	diagonal_path({NewX, NewY}, {OtherX, OtherY}, [{X, Y}|Path]).
+
 is_validity({X, Y}) ->
 	if 
 		X < 0 -> false;
 		Y < 0 -> false;
-		X > ?HEX_MAX_SIZE -> false;
-		Y > ?HEX_MAX_SIZE -> false;
+		X >= ?HEX_MAX_SIZE -> false;
+		Y >= ?HEX_MAX_SIZE -> false;
 		true -> true
 	end.
 

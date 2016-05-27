@@ -73,3 +73,5 @@
       9       2
 
 19.由于地图格子数量太大，此处分组分段处理，每100个为1组，10000个为1段
+
+20.聊天采用注册制，玩家上线时注册，离线时取消注册，工会聊天也需要注册。注册可以存在线程字典中，也可以存在ets表中，此处存在线程字典中，world chat key 为 world_server, alliance chat key 为 {alliance, AllianceId}。 

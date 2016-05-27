@@ -4,6 +4,7 @@
 		change_name/2]).
 
 login(_PlayerId, {}) ->  %% old player
+	after_login(),
 	user_model:info();
 login(PlayerId, {Account, Passwd}) -> %% new player
 	user_model:create_player(PlayerId, {Account, Passwd}),
@@ -17,6 +18,12 @@ change_name(_PlayerId, {Name}) ->
 				fail -> {fail, {<<"error_username_used">>}};
 				_ ->
 					user_model:change_name(Name),
+					after_login(),
 					user_model:info()
 			end
 	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% private
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+after_login() -> ok.

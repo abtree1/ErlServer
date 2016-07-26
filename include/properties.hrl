@@ -33,3 +33,6 @@
 -define(HEX_GROUP_SIZE, 20).
 -define(RECT_MAX_SIZE, 1000).
 -define(RECT_GROUP_SIZE, 10).
+
+-define(BATTLE_RANDOM_RATE, 100).
+-define(BATTLE_RANDOM_SIZE, 100).

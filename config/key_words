@@ -1,4 +1,5 @@
 mapper -> {db, migrate}
+mapper -> {battle_verify, _}
 timeout_counter -> {timertask_desk, _}
 timeout_counter -> {timertask, _}
 daily_counter -> uuid_factory

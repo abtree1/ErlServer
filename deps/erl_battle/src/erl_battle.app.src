@@ -1,0 +1,12 @@
+{application, erl_battle,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { erl_battle_app, []}},
+  {env, []}
+ ]}.

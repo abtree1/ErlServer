@@ -15,22 +15,24 @@ start: config db proto map
 		-s erl_server start
 
 config: 
+	./rebar get-deps
 	erl -pa ebin deps/*/ebin \
 		-config erl_server.config \
-		-s life_cycle config
-	./rebar compile
+		-s erl_global config
+	#./rebar compile
 
 db: 
 	erl -pa ebin deps/*/ebin \
 		-config erl_server.config \
-		-s life_cycle migrate
-	./rebar compile
+		-s erl_global migrate
+	#./rebar compile
 
 proto: 
+	./rebar get-deps
 	erl -pa ebin deps/*/ebin \
 		-config erl_server.config \
-		-s life_cycle protocol
-	./rebar compile
+		-s erl_global protocol
+	#./rebar compile
 
 map:
 	erl -pa ebin deps/*/ebin \

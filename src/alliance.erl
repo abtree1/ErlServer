@@ -40,7 +40,7 @@ async_wrap(AllianceId, Fun) ->
     gen_server:cast(alliance_sup:get_pid(AllianceId), {wrap, Fun}).
 
 stop(Pid) ->
-    gen_server:call(Pid, stop).
+    gen_server:cast(Pid, stop).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -68,6 +68,9 @@ handle_cast({wrap, Fun}, State) ->
     {noreply, State};
 handle_cast({proxy, Module, Fun, Args}, State) ->
     erlang:apply(Module, Fun, Args),
+    {noreply, State};
+handle_cast(stop, State) ->
+    util_model:save_all_sync(),
     {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.

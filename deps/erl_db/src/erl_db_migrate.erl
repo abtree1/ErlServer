@@ -13,11 +13,13 @@ migrate(DBPool) ->
 	erase({migrate, dbpool}).
 
 analyse_sql(Context) ->
+	% io:fwrite("Context : ~s~n", [Context]),
 	Lists = binary_string:split(Context, <<"->">>),
 	Olds = case erl_counter:get({db, migrate}) of 
 		undefined -> [];
 		L -> L 
 	end,
+	% io:fwrite("analyse_sql : ~s~n", [Lists]),
 	%% error_logger:info_msg("analyse_sql: ~p~n", [Olds]),
 	Res = deal_items(Lists, Olds, []),
 	erl_counter:set({db, migrate}, Res),
@@ -29,6 +31,7 @@ deal_items([Index, Sql|Lists], Olds, Results) ->
 		true -> deal_items(Lists, Olds, [Index|Results]);
 		false ->
 			Pool = get({migrate, dbpool}),
+			io:fwrite("sql : ~s~n", [Sql]),
  			emysql:execute(Pool, Sql),
 			deal_items(Lists, Olds, [Index|Results])
 	end.
@@ -51,5 +54,6 @@ create_records() ->
 
 select(Sql) ->
 	Pool = get({migrate, dbpool}),
+	io:fwrite("sql : ~s~n", [Sql]),
 	{ _, _, _, Result, _ } = emysql:execute(Pool, Sql),
 	Result.

@@ -69,16 +69,27 @@ is_neighbor(PointM, PointN) ->
 	end.
 
 is_line({X, Y}, {OtherX, OtherY}) ->
-	if 
-		Y =:= OtherY -> true;
+	if
+		X =:= OtherX andalso Y =:= OtherY -> false;
+		Y =:= OtherY -> true; 
 		true ->
 			SpanX = erlang:abs(X - OtherX),
-			SpanY = erlang:abs(Y - OtherY),
-			if 
-				SpanX * 2 =:= SpanY -> true;
-				true -> false
-			end
+	 		SpanY = erlang:abs(Y - OtherY),
+	 		if
+	 			SpanX =:= SpanY -> true;
+	 			true -> false
+	 		end
 	end.
+	% if 
+	% 	Y =:= OtherY -> true;
+	% 	true ->
+	% 		SpanX = erlang:abs(X - OtherX),
+	% 		SpanY = erlang:abs(Y - OtherY),
+	% 		if 
+	% 			SpanX * 2 =:= SpanY -> true;
+	% 			true -> false
+	% 		end
+	% end.
 
 is_validity({X, Y}) ->
 	if 

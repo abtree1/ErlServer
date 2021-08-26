@@ -5,7 +5,8 @@
 
 -export([connect/0,
 		send/2,
-		stop/1]).
+		stop/1
+		]).
 
 connect() ->
 	SomeHostInNet = "127.0.0.1", % to make it runnable on one machine
